@@ -9,7 +9,7 @@ import StarRating from '../../components/StarRating'
 import DateRangePicker from '../../components/ui/DateRangePicker'
 import { ArrowLeft, ShoppingCart, Package, CreditCard, Banknote, Plus, Minus } from 'lucide-react'
 import { toast } from 'sonner'
-import { useCart } from '../../hooks/useCart'
+import useCart from '../../hooks/useCart';
 
 export const ItemPage = () => {
     const { productId } = useParams();

@@ -19,7 +19,7 @@ router.post("/add", addToCart);
 router.put("/update", updateCartItem);
 
 // Remove item from cart
-router.delete("/remove", removeCartItem);
+router.put("/remove", removeCartItem);
 
 // Clear all items from cart
 router.delete("/clear", clearCart);

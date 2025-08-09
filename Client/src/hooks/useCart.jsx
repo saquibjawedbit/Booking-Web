@@ -8,12 +8,12 @@ import {
 } from '../Api/cart.api';
 
 export const useCart = () => {
-  const [cart, setCart] = useState(null);
+  const [cart, setCart] = useState({ items: [] });
   const [totalPrice, setTotalPrice] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch cart items
+  // Fetch cart items from API
   const fetchCart = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -34,13 +34,13 @@ export const useCart = () => {
   }, [fetchCart]);
 
   // Add item to cart
-  const handleAddToCart = async (data) => {
+  const handleAddToCart = async (item) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await addToCart(data);
+      const res = await addToCart(item);
       const responseData = res.data.data;
-      setCart(responseData.cart);
+      setCart(responseData.cart || { items: [] });
       setTotalPrice(responseData.totalPrice || 0);
     } catch (err) {
       setError(err);
@@ -49,14 +49,14 @@ export const useCart = () => {
     }
   };
 
-  // Update cart item
-  const handleUpdateCartItem = async (data) => {
+  // Update cart item quantity
+  const handleUpdateCartItem = async (item) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await updateCartItem(data);
+      const res = await updateCartItem(item);
       const responseData = res.data.data;
-      setCart(responseData.cart);
+      setCart(responseData.cart || { items: [] });
       setTotalPrice(responseData.totalPrice || 0);
     } catch (err) {
       setError(err);
@@ -66,13 +66,13 @@ export const useCart = () => {
   };
 
   // Remove cart item
-  const handleRemoveCartItem = async (data) => {
+  const handleRemoveCartItem = async (itemId) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await removeCartItem(data);
+      const res = await removeCartItem(itemId);
       const responseData = res.data.data;
-      setCart(responseData.cart);
+      setCart(responseData.cart || { items: [] });
       setTotalPrice(responseData.totalPrice || 0);
     } catch (err) {
       setError(err);
@@ -81,14 +81,14 @@ export const useCart = () => {
     }
   };
 
-  // Clear cart
+  // Clear all items
   const handleClearCart = async () => {
     setLoading(true);
     setError(null);
     try {
       const res = await clearCart();
       const responseData = res.data.data;
-      setCart(responseData.cart);
+      setCart(responseData.cart || { items: [] });
       setTotalPrice(responseData.totalPrice || 0);
     } catch (err) {
       setError(err);
@@ -98,8 +98,8 @@ export const useCart = () => {
   };
 
   return {
-    cart,
-    totalPrice,
+    cart,                 
+    totalPrice,            
     loading,
     error,
     fetchCart,

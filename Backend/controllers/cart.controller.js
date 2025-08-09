@@ -13,7 +13,7 @@ const translateCartItems = async (cart, language) => {
   }
 
   // Convert to plain object if it's a Mongoose document
-  const plainCart = cart.toJSON ? cart.toJSON() : cart;
+  const plainCart = cart.toJSON() ? cart.toJSON() : cart;
   
   // Extract items and translate them
   const items = plainCart.items.map(cartItem => cartItem.item);
@@ -169,26 +169,26 @@ export const updateCartItem = asyncHandler(async (req, res) => {
 // Remove an item from the cart
 export const removeCartItem = asyncHandler(async (req, res) => {
   const userId = req.user._id;
-  const { item, purchase } = req.body;
-  if (!item) throw new ApiError(400, "Item id is required");
+  const { itemId, purchase } = req.body;
+  if (!itemId) throw new ApiError(400, "Item id is required");
+
   let cart = await Cart.findOne({ user: userId });
   if (!cart) throw new ApiError(404, "Cart not found");
-  cart.items = cart.items.filter(
-    (i) => !(i.item.toString() === item && i.purchase === !!purchase)
-  );
-  await cart.save();
 
-  // Populate the cart and calculate total price for response
+  cart.items = cart.items.filter(
+    (i) => !(i.item.toString() === itemId && i.purchase === !purchase)
+  );
+
+  await cart.save();
   await cart.populate("items.item");
+console.log("Item Removed")
   const totalPrice = cart.items.reduce((total, cartItem) => {
     const item = cartItem.item;
     if (item && cartItem.purchase) {
-      const itemPrice = item.price * cartItem.quantity;
-      return total + itemPrice;
+      return total + item.price * cartItem.quantity;
     } else {
       const rentalDuration = Math.ceil(
-        (new Date(cartItem.rentalPeriod.endDate) -
-          new Date(cartItem.rentalPeriod.startDate)) /
+        (new Date(cartItem.rentalPeriod.endDate) - new Date(cartItem.rentalPeriod.startDate)) /
           (1000 * 60 * 60 * 24)
       );
       const rentalPrice = item.rentalPrice * cartItem.quantity * rentalDuration;
@@ -196,9 +196,7 @@ export const removeCartItem = asyncHandler(async (req, res) => {
     }
   }, 0);
 
-  res
-    .status(200)
-    .json(new ApiResponse(200, { cart, totalPrice }, "Item removed from cart"));
+  res.status(200).json(new ApiResponse(200, { cart, totalPrice }, "Item removed from cart"));
 });
 
 // Clear all items from the cart

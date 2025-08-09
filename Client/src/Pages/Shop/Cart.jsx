@@ -7,20 +7,41 @@ import { Separator } from "../../components/ui/separator"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../../components/ui/dialog"
 import { Input } from "../../components/ui/input"
 import DateRangePicker from "../../components/ui/DateRangePicker"
-import { useCart } from "../../hooks/useCart"
+import useCart from '../../hooks/useCart';
 import { Link, useNavigate } from "react-router-dom"
 import { Navbar } from "../../components/Navbar"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useContext,useEffect } from "react"
 import { toast } from "sonner"
 import { createBooking } from "../../Api/booking.api";
+import { CartContext } from "../Cart/CartContext"
 
 export const Cart = () => {
     const navigate = useNavigate()
-    const { cart, totalPrice, loading, error, updateCartItem, removeCartItem, clearCart } = useCart()
+    const [cart, setCart] = useState(null)
+    const {  totalPrice, loading, error, updateCartItem, removeCartItem, clearCart } = useCart()
     const [loadingItems, setLoadingItems] = useState({})
     const [name, setName] = useState("")
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [isBookingLoading, setIsBookingLoading] = useState(false)
+    console.log(cart);
+    const fetchCart = async () => {
+    try {
+      const res = await fetch("http://localhost:8080/api/cart", {
+        credentials: "include",
+      });
+      const data = await res.json();
+      setCart(data.data.cart);
+
+      console.log("Full Cart Data:", data);
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCart(); // Call once on mount
+  }, []);
+
 
     const handleQuantityUpdate = async (itemId, newQuantity, purchase) => {
         if (newQuantity < 1) return
@@ -35,17 +56,19 @@ export const Cart = () => {
         }
     }
 
-    const handleRemoveItem = async (itemId) => {
-        setLoadingItems(prev => ({ ...prev, [itemId]: true }))
-        try {
-            await removeCartItem({ itemId, purchase })
-            toast.success("Item removed from cart")
-        } catch (err) {
-            toast.error("Failed to remove item")
-        } finally {
-            setLoadingItems(prev => ({ ...prev, [itemId]: false }))
-        }
-    }
+    const handleRemoveItem = async (cartItemId, purchase = false) => {
+  setLoadingItems(prev => ({ ...prev, [cartItemId]: true }));
+  try {
+    await removeCartItem({ itemId: cartItemId, purchase });
+    toast.success("Item removed from cart");
+    fetchCart();
+  } catch (err) {
+    console.error(err.response?.data || err.message);
+    toast.error("Failed to remove item");
+  } finally {
+    setLoadingItems(prev => ({ ...prev, [cartItemId]: false }));
+  }
+};
 
     const handleClearCart = async () => {
         try {
@@ -163,7 +186,7 @@ export const Cart = () => {
             </div>
         )
     }
-
+console.log("Cart.jsx cart state:", cart);
     return (
         <div className="min-h-screen bg-white mt-20">
             <Navbar />
@@ -359,7 +382,7 @@ export const Cart = () => {
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="sm"
-                                                                    onClick={() => handleRemoveItem(item.item._id, item.purchase)}
+                                                                    onClick={() => handleRemoveItem(item.item._id)}
                                                                     disabled={loadingItems[item.item._id]}
                                                                     className="text-black hover:text-white hover:bg-black"
                                                                 >

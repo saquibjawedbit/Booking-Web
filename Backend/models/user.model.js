@@ -56,6 +56,12 @@ const userSchema = new mongoose.Schema(
         ref: "Review",
       },
     ],
+    adventures: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Adventure",
+  },
+],
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -120,7 +126,7 @@ userSchema.methods.getAdventureExperiences = async function () {
     "./userAdventureExperience.model.js"
   );
   return await UserAdventureExperience.find({ user: this._id })
-    .populate("adventure", "name description medias thumbnail")
+    .populate("adventure", "name description medias thumbnail ")
     .sort({ experience: -1 });
 };
 

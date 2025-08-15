@@ -48,9 +48,14 @@ const adventureSchema = new mongoose.Schema(
         ref: "User",
       },
     ],
+    totalSessions: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
   }
 );
+
 export const Adventure = mongoose.model("Adventure", adventureSchema);

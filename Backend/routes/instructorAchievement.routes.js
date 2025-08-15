@@ -3,6 +3,6 @@ import { getInstructorBadge } from "../controllers/instructorAchievement.control
 
 const router = express.Router();
 
-router.get('/api/instructorAchievement/:id', getInstructorBadge);
+router.get('/:id', getInstructorBadge);
 
 export default router;

@@ -56,3 +56,10 @@ export const getAdventure = async (id) => {
   const res = await axiosClient.get(`/api/adventure/${id}`);
   return res;
 };
+
+export const fetchUserAdventureExperiences = async () => {
+  const res = await axiosClient.get('/users/adventure-experiences', {
+    withCredentials: true,
+  });
+  return res;
+};

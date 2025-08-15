@@ -53,6 +53,26 @@ export const getUsers = asyncHandler(async (req, res) => {
   });
 });
 
+export const getUserAdventure = asyncHandler(async (req, res) => {
+  const userId = req.user._id;
+
+  const user = await User.findById(userId)
+    .populate("adventures") 
+    .select("name email adventures");
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  res.status(200).json(
+    new ApiResponse(
+      200,
+      { adventures: user.adventures },
+      "User adventures fetched successfully"
+    )
+  );
+});
+
 export const deleteUser = asyncHandler(async (req, res) => {
   const { id } = req.params;
   if (!id) {

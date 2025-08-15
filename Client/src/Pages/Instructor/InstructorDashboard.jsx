@@ -3,7 +3,8 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { useAuth } from "../AuthProvider"
 import { motion } from "framer-motion"
-import { Calendar, DollarSign, Users, Star, TrendingUp, Clock, MapPin, Filter, Search, Check } from "lucide-react"
+import { Separator } from "../../components/ui/separator"
+import { Award, Calendar, DollarSign, Users, Star, TrendingUp, Clock, MapPin, Filter, Search, Check } from "lucide-react"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card"
 import { Button } from "../../components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
@@ -17,6 +18,7 @@ import { fetchAllAdventures, getAdventure } from "../../Api/adventure.api"
 import { getInstructorSessions } from "../../Api/session.api"
 import { staggerContainer, fadeIn } from "../../assets/Animations"
 import { getInstructorBadge } from '../../Api/instructorAchievement.api'
+
 // Mock data for the instructor dashboard
 const mockData = {
     instructor: {
@@ -191,6 +193,7 @@ const mockData = {
 }
 
 const InstructorDashboard = () => {
+    const [instructorBadge, setInstructorBadge] = useState(null);
     const navigate = useNavigate()
     const { user } = useAuth()
     const { t } = useTranslation()
@@ -246,42 +249,58 @@ const InstructorDashboard = () => {
         }
         fetchUpcomingSessions()
         const fetchBadge = async () => {
-    try {
-      const res = await getInstructorBadge(user?.user?._id);
-      console.log("Instructor Badge:", res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  
-  fetchBadge();
+            try {
+                console.log("Instructor Id:", user?.user?.instructor)
+                const res = await getInstructorBadge(user?.user?.instructor?._id);
+                console.log("Instructor Badge:", res.data);
+                setInstructorBadge(res.data);
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchBadge();
     }, [user, navigate])
 
+    const achievementData = [
+        {
+            title: "Starter Badge",
+            description: "“New Adventurer” – Complete first 5 bookings"
+        },
+        {
+            title: "Rising Star Badge",
+            description: "“Rising Star” – 10 bookings completed"
+        },
+        {
+            title: "Trusted Pro Badge",
+            description: "“Trusted Pro” – 50 successful bookings, 6+ months active"
+        },
+        {
+            title: "Elite Instructor Badge",
+            description: "“Elite Instructor” – 150 successful bookings, 1+ year active"
+        },
+        {
+            title: "Full Send Legend Badge",
+            description: "“Full Send Legend” – 250+ bookings, 2+ years active, contributed to community content or events"
+        },
+    ]
+    const currentIndex = achievementData.findIndex(
+        (ach) => ach.title === instructorBadge?.badge
+    );
     return (
         <InstructorLayout>
             <div className="space-y-4 sm:space-y-6 p-2 sm:p-4 lg:p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 gap-4">
                     <div className="flex-1 min-w-0">
-                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">{t("instructor.dashboard")}</h2>
-                        <p className="text-sm sm:text-base text-muted-foreground mt-1">{t("instructor.welcomeMessage")}</p>
+                        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">
+                            {t("instructor.dashboard")}
+                        </h2>
+                        <p className="text-sm sm:text-base text-muted-foreground mt-1">
+                            {t("instructor.welcomeMessage")}
+                        </p>
                     </div>
-                    {/* <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 w-full lg:w-auto">
-                        <Select defaultValue={timeRange} onValueChange={setTimeRange}>
-                            <SelectTrigger className="w-full sm:w-[160px] lg:w-[180px] h-10">
-                                <SelectValue placeholder={t("instructor.selectTimeRange")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="day">{t("instructor.last24Hours")}</SelectItem>
-                                <SelectItem value="week">{t("instructor.lastWeek")}</SelectItem>
-                                <SelectItem value="month">{t("instructor.lastMonth")}</SelectItem>
-                                <SelectItem value="year">{t("instructor.lastYear")}</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <Button variant="outline" size="icon" className="h-10 w-10 shrink-0">
-                            <Calendar className="h-4 w-4" />
-                        </Button>
-                    </div> */}
                 </div>
+
                 <div defaultValue="overview" className="space-y-4 sm:space-y-6">
                     <div value="overview" className="space-y-4 sm:space-y-6">
                         <motion.div
@@ -290,42 +309,18 @@ const InstructorDashboard = () => {
                             initial="hidden"
                             animate="visible"
                         >
-                            {/* <motion.div variants={fadeIn}>
-                                <Card className="h-full">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4 sm:px-6 sm:pt-6">
-                                        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">{t("instructor.totalRevenue")}</CardTitle>
-                                        <DollarSign className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
-                                    </CardHeader>
-                                    <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-                                        <div className="text-lg sm:text-xl lg:text-2xl font-bold">${mockData.instructor.totalRevenue.toLocaleString()}</div>
-                                        <div className="flex items-center space-x-1 text-xs text-muted-foreground mt-1">
-                                            <span
-                                                className={`flex items-center ${mockData.instructor.revenueIncrease > 0 ? "text-green-500" : "text-red-500"}`}
-                                            >
-                                                {mockData.instructor.revenueIncrease > 0 ? (
-                                                    <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3 mr-1" />
-                                                ) : (
-                                                    <TrendingUp className="h-2 w-2 sm:h-3 sm:w-3 mr-1 transform rotate-180" />
-                                                )}
-                                                {Math.abs(mockData.instructor.revenueIncrease)}%
-                                            </span>
-                                            <span className="hidden sm:inline">
-                                                {t("instructor.fromLast")} {timeRange}
-                                            </span>
-                                            <span className="sm:hidden">vs last {timeRange}</span>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div> */}
-
                             <motion.div variants={fadeIn}>
                                 <Card className="h-full">
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4 sm:px-6 sm:pt-6">
-                                        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">{t("instructor.totalBookings")}</CardTitle>
+                                        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">
+                                            {t("instructor.totalBookings")}
+                                        </CardTitle>
                                         <Users className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
                                     </CardHeader>
                                     <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-                                        <div className="text-lg sm:text-xl lg:text-2xl font-bold">{mockData.instructor.totalBookings}</div>
+                                        <div className="text-lg sm:text-xl lg:text-2xl font-bold">
+                                            {mockData.instructor.totalBookings}
+                                        </div>
                                         <div className="flex items-center space-x-1 text-xs text-muted-foreground mt-1">
                                             <span
                                                 className={`flex items-center ${mockData.instructor.bookingIncrease > 0 ? "text-green-500" : "text-red-500"}`}
@@ -345,10 +340,13 @@ const InstructorDashboard = () => {
                                     </CardContent>
                                 </Card>
                             </motion.div>
+
                             <motion.div variants={fadeIn}>
                                 <Card className="h-full">
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4 sm:px-6 sm:pt-6">
-                                        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">{t("instructor.upcomingSessions")}</CardTitle>
+                                        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">
+                                            {t("instructor.upcomingSessions")}
+                                        </CardTitle>
                                         <Calendar className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
                                     </CardHeader>
                                     <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
@@ -368,11 +366,15 @@ const InstructorDashboard = () => {
                             <motion.div variants={fadeIn}>
                                 <Card className="h-full">
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 px-4 pt-4 sm:px-6 sm:pt-6">
-                                        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">{t("instructor.rating")}</CardTitle>
+                                        <CardTitle className="text-xs sm:text-sm font-medium truncate pr-2">
+                                            {t("instructor.rating")}
+                                        </CardTitle>
                                         <Star className="h-3 w-3 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
                                     </CardHeader>
                                     <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-                                        <div className="text-lg sm:text-xl lg:text-2xl font-bold">{mockData.instructor.rating}</div>
+                                        <div className="text-lg sm:text-xl lg:text-2xl font-bold">
+                                            {mockData.instructor.rating}
+                                        </div>
                                         <div className="flex items-center space-x-1 text-xs text-muted-foreground mt-1">
                                             <span className="text-yellow-500 flex items-center">
                                                 <Star className="h-2 w-2 sm:h-3 sm:w-3 fill-current mr-0.5" />
@@ -386,118 +388,53 @@ const InstructorDashboard = () => {
                                 </Card>
                             </motion.div>
                         </motion.div>
-                        {/* <motion.div
-                            className="grid gap-3 sm:gap-4 lg:gap-6 grid-cols-1 lg:grid-cols-7"
-                            variants={staggerContainer}
-                            initial="hidden"
-                            animate="visible"
-                        >
-                            <motion.div variants={fadeIn} className="lg:col-span-4">
-                                <Card className="h-full">
-                                    <CardHeader className="px-4 py-4 sm:px-6 sm:py-6">
-                                        <CardTitle className="text-base sm:text-lg">{t("instructor.revenueOverview")}</CardTitle>
-                                        <CardDescription className="text-xs sm:text-sm">{t("instructor.monthlyRevenue")}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-                                        <div className="h-[200px] sm:h-[250px] lg:h-[300px]">
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <LineChart data={mockData.monthlyRevenue}>
-                                                    <XAxis
-                                                        dataKey="month"
-                                                        stroke="#888888"
-                                                        fontSize={12}
-                                                        tickLine={false}
-                                                        axisLine={false}
-                                                    />
-                                                    <YAxis
-                                                        stroke="#888888"
-                                                        fontSize={12}
-                                                        tickLine={false}
-                                                        axisLine={false}
-                                                        tickFormatter={(value) => `$${value}`}
-                                                    />
-                                                    <Tooltip
-                                                        contentStyle={{
-                                                            backgroundColor: 'hsl(var(--background))',
-                                                            border: '1px solid hsl(var(--border))',
-                                                            borderRadius: '6px',
-                                                            fontSize: '12px'
-                                                        }}
-                                                    />
-                                                    <Line
-                                                        type="monotone"
-                                                        dataKey="revenue"
-                                                        stroke="#0ea5e9"
-                                                        strokeWidth={2}
-                                                        activeDot={{ r: 4, strokeWidth: 0 }}
-                                                        dot={false}
-                                                    />
-                                                </LineChart>
-                                            </ResponsiveContainer>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                            <motion.div variants={fadeIn} className="lg:col-span-3">
-                                <Card className="h-full">
-                                    <CardHeader className="px-4 py-4 sm:px-6 sm:py-6">
-                                        <CardTitle className="text-base sm:text-lg">{t("instructor.adventureBreakdown")}</CardTitle>
-                                        <CardDescription className="text-xs sm:text-sm">{t("instructor.bookingsByType")}</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="px-4 pb-4 sm:px-6 sm:pb-6">
-                                        <div className="h-[200px] sm:h-[250px] lg:h-[300px] flex items-center justify-center">
-                                            <ResponsiveContainer width="100%" height="100%">
-                                                <PieChart>
-                                                    <Pie
-                                                        data={mockData.adventureTypes}
-                                                        cx="50%"
-                                                        cy="50%"
-                                                        labelLine={false}
-                                                        outerRadius="70%"
-                                                        fill="#8884d8"
-                                                        dataKey="bookings"
-                                                        nameKey="name"
-                                                        label={({ name, percent }) => {
-                                                            // Show labels only on larger screens
-                                                            if (window.innerWidth < 640) return '';
-                                                            return `${name}: ${(percent * 100).toFixed(0)}%`;
-                                                        }}
-                                                        fontSize={12}
-                                                    >
-                                                        {mockData.adventureTypes.map((entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                        ))}
-                                                    </Pie>
-                                                    <Tooltip
-                                                        formatter={(value, name, props) => [`${value} bookings`, props.payload.name]}
-                                                        contentStyle={{
-                                                            backgroundColor: 'hsl(var(--background))',
-                                                            border: '1px solid hsl(var(--border))',
-                                                            borderRadius: '6px',
-                                                            fontSize: '12px'
-                                                        }}
-                                                    />
-                                                </PieChart>
-                                            </ResponsiveContainer>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </motion.div>
-                        </motion.div> */}
+
                         <motion.div variants={fadeIn} initial="hidden" animate="visible" className="w-full">
                             <SessionCalendar adventureTypes={adventureTypes} />
                         </motion.div>
+
                         <motion.div variants={fadeIn} initial="hidden" animate="visible" className="w-full">
                             <UpcomingBookingsCard
                                 bookings={mockData.upcomingBookings}
                                 onViewAll={() => navigate("/instructor/bookings")}
                             />
                         </motion.div>
+
+                        {/* Achievements Section */}
+                        <Separator />
+<h4 className="text-lg font-medium mb-4">{t("Achievements")}</h4>
+
+<div className="flex flex-col gap-4">
+  {achievementData.map((ach, index) => {
+    const unlocked = index <= currentIndex && currentIndex !== -1;
+
+    return (
+      <div
+        key={ach.title}
+        className={`flex items-center gap-4 p-4 rounded-2xl bg-gray-100 transition-opacity duration-300 ${
+          unlocked ? "opacity-100" : "opacity-50"
+        }`}
+      >
+        <Award
+          className={`h-8 w-8 ${
+            unlocked ? "text-yellow-500" : "text-gray-400"
+          }`}
+        />
+        <div>
+          <span className="text-sm font-medium">{ach.title}</span>
+          <p className="text-xs text-gray-600">{ach.description}</p>
+        </div>
+      </div>
+    );
+  })}
+</div>
+
                     </div>
                 </div>
             </div>
         </InstructorLayout>
     )
+
 }
 
 export default InstructorDashboard

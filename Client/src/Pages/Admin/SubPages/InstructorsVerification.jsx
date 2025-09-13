@@ -68,8 +68,9 @@ export default function InstructorsPage() {
     const loading = toast.loading('Changing document status...');
     try {
       // Make sure we're passing the instructor ID, not the user ID
-      if (selectedInstructor && selectedInstructor?.instructor?._id) {
-        await changeDocumentStatus(selectedInstructor.instructor._id, status);
+      console.log(selectedInstructor);
+      if (selectedInstructor && selectedInstructor?._id) {
+        await changeDocumentStatus(selectedInstructor._id, status);
         toast.success('Document status changed successfully', {
           id: loading,
         });

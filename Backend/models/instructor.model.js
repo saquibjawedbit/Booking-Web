@@ -7,6 +7,12 @@ const instructorSchema = new mongoose.Schema(
       enum: ["pending", "verified", "rejected"],
       default: "pending",
     },
+    commission: {
+      type: Number,
+      default: 20,
+      min: 0,
+      max: 100,
+    },
     sessions: [
       {
         type: mongoose.Schema.Types.ObjectId,
@@ -39,13 +45,13 @@ const instructorSchema = new mongoose.Schema(
     portfolioMedias: [
       {
         type: String,
-      }
+      },
     ],
     certificate: {
-      type: String
+      type: String,
     },
     governmentId: {
-      type: String
+      type: String,
     },
     languages: [
       {

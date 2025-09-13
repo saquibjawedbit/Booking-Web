@@ -41,6 +41,14 @@ const payoutSchema = new mongoose.Schema(
       index: true,
     },
 
+    commissionRate: {
+      type: Number,
+      min: 0,
+      max: 100,
+      default: 20,
+      description: "The commission percentage applied to this payout",
+    },
+
     rawResponse: { type: mongoose.Schema.Types.Mixed },
   },
   { timestamps: true }

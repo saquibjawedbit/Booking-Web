@@ -52,6 +52,20 @@ export const deleteInstructor = async (id) => {
   }
 };
 
+export const updateInstructorCommission = async (instructorId, commission) => {
+  try {
+    const res = await axiosClient.patch(
+      `/api/instructor/${instructorId}/commission`,
+      { commission },
+      { withCredentials: true }
+    );
+    return res;
+  } catch (error) {
+    console.error('Error updating instructor commission:', error);
+    throw error;
+  }
+};
+
 export const changeDocumentStatusById = async (id, status) => {
   try {
     const res = await axiosClient.put(`/api/instructor/${id}`, { status });
@@ -67,9 +81,7 @@ export const getInstructorSessionsWithBookings = async (queryParams = {}) => {
   try {
     const params = new URLSearchParams(queryParams).toString();
     const res = await axiosClient.get(
-      `/api/session/instructor/my-sessions${
-        params ? `?${params}` : ''
-      }`,
+      `/api/session/instructor/my-sessions${params ? `?${params}` : ''}`,
       {
         withCredentials: true,
       }

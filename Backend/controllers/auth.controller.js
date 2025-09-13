@@ -53,12 +53,12 @@ const registerUser = asyncHandler(async (req, res, next) => {
     throw new ApiError(400, "Email and Password are Required");
   }
 
+
   const userExist = await User.findOne({ email: email });
 
   if (userExist) {
     throw new ApiError(409, "User with this email already exists !");
   }
-
   const user = await User.create({
     email: email.toLowerCase(),
     password: password,

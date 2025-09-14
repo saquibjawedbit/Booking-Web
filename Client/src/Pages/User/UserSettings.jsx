@@ -10,13 +10,13 @@ import { UpdatePassword, VerifyNewEmail, UpdateEmail } from '../../Auth/UserAuth
 export const UserSettings = () => {
     const { user } = useAuth();
     const userProfile = {
-        name: user.user.name || "John Doe",
-        email: user.user.email || "",
-        level: user.user.level || "Beginner",
-        joinDate: user.user.joinDate || "2023-01-01",
-        completedAdventures: user.user.completedAdventures || 0,
-        experience: user.user.experience || 400,
-        nextLevel: user.user.nextLevel || 1000,
+        name: user?.user?.name || "John Doe",
+        email: user?.user?.email || "",
+        level: user?.user?.level || "Beginner",
+        joinDate: user?.user?.joinDate || "2023-01-01",
+        completedAdventures: user?.user?.completedAdventures || 0,
+        experience: user?.user?.experience || 400,
+        nextLevel: user?.user?.nextLevel || 1000,
     }
     const [extpassword, setExtPassword] = useState("");
     const [newpassword, setNewPassword] = useState("");

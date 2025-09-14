@@ -1,21 +1,25 @@
-import { Button } from "./ui/button"
+import { Button } from './ui/button';
 
 const MediaPreview = ({ mediaPreviews, onRemove, isSubmitting }) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
       {mediaPreviews.map((media, idx) => (
         <div key={idx} className="relative group">
-          {media.type === "image" ? (
+          {media.type === 'image' ? (
             <img
-              src={media.url || "/placeholder.svg"}
-              alt={media.name}
+              src={media.url || '/placeholder.svg'}
+              alt={media?.name}
               className="w-full h-40 object-cover rounded-md border border-gray-200"
             />
-          ) : media.type === "video" ? (
-            <video src={media.url} controls className="w-full h-40 object-cover rounded-md border border-gray-200" />
+          ) : media.type === 'video' ? (
+            <video
+              src={media.url}
+              controls
+              className="w-full h-40 object-cover rounded-md border border-gray-200"
+            />
           ) : (
             <div className="w-full h-40 flex items-center justify-center bg-gray-100 rounded-md border border-gray-200">
-              <span className="text-gray-500">{media.name}</span>
+              <span className="text-gray-500">{media?.name}</span>
             </div>
           )}
           <Button
@@ -31,7 +35,7 @@ const MediaPreview = ({ mediaPreviews, onRemove, isSubmitting }) => {
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
-export default MediaPreview
+export default MediaPreview;

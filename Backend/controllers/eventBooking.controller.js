@@ -1,11 +1,11 @@
-import ApiResponse from "../utils/ApiResponse.js";
-import { ApiError } from "../utils/ApiError.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import axios from "axios";
+import { Adventure } from "../models/adventure.model.js";
 import { EventBooking } from "../models/eventBooking.model.js";
 import { Event } from "../models/events.model.js";
-import { Adventure } from "../models/adventure.model.js";
 import { PaymentService } from "../services/payment.service.js";
-import axios from "axios";
+import { ApiError } from "../utils/ApiError.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { createRevolutOrder } from "../utils/revolut.js";
 
 export const createEventBooking = asyncHandler(async (req, res) => {
@@ -84,7 +84,7 @@ export const createEventBooking = asyncHandler(async (req, res) => {
     amount,
     "GBP",
     `Event Booking - ${eventExists.title} - User: ${
-      req.user.name || req.user.email
+      req.user?.name || req.user.email
     }`,
     process.env.NODE_ENV === "production"
       ? `${process.env.CLIENT_URL}/event-booking-confirmation`

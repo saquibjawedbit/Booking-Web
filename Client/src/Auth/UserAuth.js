@@ -31,12 +31,12 @@ export const UserLogin = async (data, dispatch) => {
   const res = await axiosClient.post('/api/auth/login', data, {
     withCredentials: true,
   });
-  if (res.data.statusCode === 200) {
-    console.log(res.data.data);
-    dispatch(loginSuccess(res.data.data.user));
+  if (res?.data?.statusCode === 200) {
+    console.log(res?.data?.data);
+    dispatch(loginSuccess(res?.data?.data?.user));
     return res;
   }
-  return res.data.statusCode;
+  return res?.data?.statusCode;
 };
 
 export const ResendOtp = async (email) => {
@@ -45,9 +45,9 @@ export const ResendOtp = async (email) => {
     const res = await axiosClient.post('/api/auth/resendOtp', data);
   } catch (err) {
     console.log(err);
-    if (err.response) {
-      if (err.response.status === 403) {
-        return err.response.status;
+    if (err?.response) {
+      if (err?.response?.status === 403) {
+        return err?.response?.status;
       }
     }
   }
@@ -82,14 +82,14 @@ export const VerifyNewEmail = async (data) => {
       }
     );
     console.log(res);
-    if (res.status === 200) {
+    if (res?.status === 200) {
       return res;
     } else {
-      return res.status;
+      return res?.status;
     }
   } catch (err) {
-    if (err.response) {
-      return err.response.status;
+    if (err?.response) {
+      return err?.response?.status;
     }
   }
 };
@@ -100,14 +100,14 @@ export const UpdateEmail = async (data) => {
       withCredentials: true,
     });
     console.log(res);
-    if (res.status === 200) {
+    if (res?.status === 200) {
       return res;
     } else {
-      return res.status;
+      return res?.status;
     }
   } catch (err) {
-    if (err.response) {
-      return err.response.status;
+    if (err?.response) {
+      return err?.response?.status;
     }
   }
 };
@@ -117,13 +117,13 @@ export const UpdatePassword = async (data) => {
     const res = await axiosClient.post('/api/auth/updatePassword', data, {
       withCredentials: true,
     });
-    if (res.status === 200) {
+    if (res?.status === 200) {
       return res;
     } else {
-      return res.status;
+      return res?.status;
     }
   } catch (err) {
-    if (err.response) {
+    if (err?.response) {
       return err;
     }
   }
@@ -133,13 +133,13 @@ export const GoogleLoginSuccess = async (response, dispatch) => {
   await axiosClient
     .post(
       '/api/auth/signInWithGoogle',
-      { token: response.credential },
+      { token: response?.credential },
       { withCredentials: true }
     )
     .then((res) => {
-      if (res.status === 200) {
-        dispatch(loginSuccess(res.data.data));
-        return res.status;
+      if (res?.status === 200) {
+        dispatch(loginSuccess(res?.data?.data));
+        return res?.status;
       }
     })
     .catch((err) => {

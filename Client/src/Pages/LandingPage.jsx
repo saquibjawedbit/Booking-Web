@@ -120,7 +120,7 @@ const EventCard = memo(({ event, handleBooking, handleViewMore }) => (
                 className="flex items-center space-x-2"
               >
                 <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span className="text-gray-600 text-sm">{adventure.name}</span>
+                <span className="text-gray-600 text-sm">{adventure?.name}</span>
               </div>
             ))}
             {event.adventures.length > 2 && (
@@ -206,8 +206,8 @@ const SearchBar = memo(
             >
               <option value="all">{t('selectAdventure')}</option>
               {adventures.map((adventure, index) => (
-                <option key={index} value={adventure.name}>
-                  {adventure.name}
+                <option key={index} value={adventure?.name}>
+                  {adventure?.name}
                 </option>
               ))}
             </select>
@@ -738,7 +738,7 @@ export default function LandingPage() {
                 <div className="flex items-center space-x-8 mx-8">
                   {countriesFromEvents.map((country, index) => (
                     <motion.div
-                      key={country.name}
+                      key={country?.name}
                       className={`cursor-pointer transition-all duration-500 ${
                         index === currentCountryIndex
                           ? 'scale-125 text-2xl font-bold text-gray-900'
@@ -754,7 +754,7 @@ export default function LandingPage() {
                         damping: 20,
                       }}
                     >
-                      {country.name}
+                      {country?.name}
                     </motion.div>
                   ))}
                 </div>
@@ -1055,13 +1055,13 @@ export default function LandingPage() {
                             {adventure.thumbnail && (
                               <img
                                 src={adventure.thumbnail}
-                                alt={adventure.name}
+                                alt={adventure?.name}
                                 className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                               />
                             )}
                             <div className="flex-1">
                               <h5 className="font-medium text-gray-900">
-                                {adventure.name}
+                                {adventure?.name}
                               </h5>
                               {adventure.description && (
                                 <p className="text-sm text-gray-600 mt-1 line-clamp-2">
@@ -1352,15 +1352,15 @@ export default function LandingPage() {
                         <Avatar className="h-8 w-8 border border-gray-100">
                           <AvatarImage
                             src={friend.profilePicture || '/placeholder.svg'}
-                            alt={friend.name}
+                            alt={friend?.name}
                           />
                           <AvatarFallback className="text-xs">
-                            {friend.name?.charAt(0) || friend.email?.charAt(0)}
+                            {friend?.name?.charAt(0) || friend.email?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
                         <div>
                           <p className="text-sm font-medium text-gray-800">
-                            {friend.name || 'User'}
+                            {friend?.name || 'User'}
                           </p>
                           <p className="text-xs text-gray-500">
                             {friend.email}
@@ -1425,15 +1425,15 @@ export default function LandingPage() {
                     <Avatar className="h-10 w-10 border border-gray-100">
                       <AvatarImage
                         src={member.profilePicture || '/placeholder.svg'}
-                        alt={member.name}
+                        alt={member?.name}
                       />
                       <AvatarFallback>
-                        {member.name?.charAt(0) || member.email?.charAt(0)}
+                        {member?.name?.charAt(0) || member.email?.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium text-gray-800">
-                        {member.name || 'User'}
+                        {member?.name || 'User'}
                       </p>
                       <p className="text-xs text-gray-500">{member.email}</p>
                     </div>

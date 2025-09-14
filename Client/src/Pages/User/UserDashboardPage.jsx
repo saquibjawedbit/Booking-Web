@@ -79,7 +79,7 @@ export default function UserDashboardPage() {
         if (response && response.success) {
           const adventures = response.data.adventures || [];
           const stats = adventures.map((adv) => ({
-            name: adv.name,
+            name: adv?.name,
             totalSessions: adv.totalSessions || 0,
           }));
 
@@ -200,7 +200,7 @@ export default function UserDashboardPage() {
   };
 
   const userProfile = {
-    name: user.user.name || 'John Doe',
+    name: user.user?.name || 'John Doe',
     email: user.user.email || '',
     level: Math.floor((levelData.totalExperience || 0) / 100), // Level increases every 100 XP
     joinDate: user.user.joinDate || '2023-01-01',
@@ -273,7 +273,7 @@ export default function UserDashboardPage() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
             <div>
               <h1 className="text-3xl font-bold text-black">Dashboard</h1>
-              <p className="text-gray-600">Welcome back, {userProfile.name}</p>
+              <p className="text-gray-600">Welcome back, {userProfile?.name}</p>
             </div>
 
             <div className="flex px-3 items-center gap-3">

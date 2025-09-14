@@ -1,22 +1,21 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { ChevronRight, X } from "lucide-react"
+import { motion } from 'framer-motion';
+import { ChevronRight, X } from 'lucide-react';
+import { useState } from 'react';
 
 export const AdventureCard = ({ adventure, formatDate, onBook }) => {
-  const [isVideoPlaying, setIsVideoPlaying] = useState(false)
+  const [isVideoPlaying, setIsVideoPlaying] = useState(false);
 
   const handleVideoClick = (e) => {
-    e.stopPropagation()
-    setIsVideoPlaying(true)
-  }
+    e.stopPropagation();
+    setIsVideoPlaying(true);
+  };
 
   const handleCloseVideo = (e) => {
-    e.stopPropagation()
-    setIsVideoPlaying(false)
-  }
-
+    e.stopPropagation();
+    setIsVideoPlaying(false);
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden h-full flex flex-col transition-all duration-300 hover:shadow-xl">
@@ -26,27 +25,29 @@ export const AdventureCard = ({ adventure, formatDate, onBook }) => {
           className="absolute inset-0 w-full h-full"
           initial={{ x: 0 }}
           animate={{
-            x: isVideoPlaying ? "-100%" : "0%"
+            x: isVideoPlaying ? '-100%' : '0%',
           }}
           transition={{
-            type: "spring",
+            type: 'spring',
             stiffness: 300,
             damping: 30,
-            duration: 0.5
+            duration: 0.5,
           }}
         >
-          {adventure.medias[0] ? (
+          {adventure?.medias?.[0] ? (
             <img
-              src={adventure.medias[0] || "/placeholder.svg"}
-              alt={adventure.name}
+              src={adventure?.medias?.[0] || '/placeholder.svg'}
+              alt={adventure?.name}
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center">
-              <span className="text-white font-medium text-center px-4">{adventure.name}</span>
+              <span className="text-white font-medium text-center px-4">
+                {adventure?.name}
+              </span>
             </div>
           )}
-          {adventure.previewVideo && !isVideoPlaying && (
+          {adventure?.previewVideo && !isVideoPlaying && (
             <motion.button
               className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm p-1 sm:p-2 rounded-full shadow-md hover:bg-white transition-colors"
               whileHover={{ scale: 1.1 }}
@@ -60,23 +61,23 @@ export const AdventureCard = ({ adventure, formatDate, onBook }) => {
         </motion.div>
 
         {/* Video Player */}
-        {adventure.previewVideo && (
+        {adventure?.previewVideo && (
           <motion.div
             className="absolute inset-0 w-full h-full"
-            initial={{ x: "100%" }}
+            initial={{ x: '100%' }}
             animate={{
-              x: isVideoPlaying ? "0%" : "100%"
+              x: isVideoPlaying ? '0%' : '100%',
             }}
             transition={{
-              type: "spring",
+              type: 'spring',
               stiffness: 300,
               damping: 30,
-              duration: 0.5
+              duration: 0.5,
             }}
           >
             <div className="relative w-full h-full">
               <video
-                src={adventure.previewVideo}
+                src={adventure?.previewVideo}
                 autoPlay
                 className="w-full h-full object-cover"
                 onEnded={() => setIsVideoPlaying(false)}
@@ -99,35 +100,39 @@ export const AdventureCard = ({ adventure, formatDate, onBook }) => {
       </div>
 
       <div className="p-3 sm:p-4 flex-1 flex flex-col">
-        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 line-clamp-2">{adventure.name}</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-1 line-clamp-2">
+          {adventure?.name}
+        </h3>
 
         <div className="flex items-center text-gray-500 text-xs sm:text-sm mb-2">
-          {adventure.location && adventure.location.length > 0 && (
-            <span>{adventure.location[0].name}</span>
+          {adventure?.location && adventure?.location.length > 0 && (
+            <span>{adventure?.location[0]?.name}</span>
           )}
         </div>
 
         <p className="text-gray-600 text-xs sm:text-sm mb-3 line-clamp-2 sm:line-clamp-3 flex-1">
-          {adventure.description}
+          {adventure?.description}
         </p>
 
         <div className="mt-auto space-y-2">
-          {adventure.session_date && (
-            <div className="text-xs text-gray-500">Available: {formatDate(adventure.session_date)}</div>
+          {adventure?.session_date && (
+            <div className="text-xs text-gray-500">
+              Available: {formatDate(adventure?.session_date)}
+            </div>
           )}
 
           <motion.button
             className="w-full py-2 sm:py-2.5 px-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-md font-medium text-sm sm:text-base transition-all hover:from-blue-600 hover:to-indigo-700"
             whileHover={{ y: -2 }}
             whileTap={{ y: 0 }}
-            onClick={() => onBook(adventure._id)}
+            onClick={() => onBook(adventure?._id)}
           >
             Book Now
           </motion.button>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdventureCard
+export default AdventureCard;

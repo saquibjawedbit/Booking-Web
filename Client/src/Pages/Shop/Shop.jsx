@@ -1,19 +1,19 @@
-import { Link } from "react-router-dom";
-import { useRef, useContext, useState, useEffect } from "react";
-import { Button } from "../../components/ui/button";
-import { Heart, Search, ShoppingCart, ChevronLeft, ChevronRight, Home, Phone, Mail, Facebook, Instagram } from "lucide-react";
-import { CartContext } from "../Cart/CartContext";
+import { ChevronLeft, ChevronRight, Search, ShoppingCart } from 'lucide-react';
+import { useContext, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Button } from '../../components/ui/button';
+import { CartContext } from '../Cart/CartContext';
 
 export default function AdventureShop() {
   const [items, setItems] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const scrollRef = useRef(null);
   const { addToCart } = useContext(CartContext);
 
   const baseUrl = import.meta.env.VITE_SERVER_URL;
 
   // Fetch items
-  const fetchItems = async (query = "") => {
+  const fetchItems = async (query = '') => {
     try {
       const url = query
         ? `${baseUrl}api/items?search=${encodeURIComponent(query)}`
@@ -21,10 +21,10 @@ export default function AdventureShop() {
 
       const response = await fetch(url);
       const data = await response.json();
-      console.log("Fetched items from API:", data);
+      console.log('Fetched items from API:', data);
       setItems(data.message || []);
     } catch (error) {
-      console.error("Error fetching items:", error);
+      console.error('Error fetching items:', error);
     }
   };
 
@@ -40,7 +40,10 @@ export default function AdventureShop() {
   const handleScroll = (direction) => {
     const container = scrollRef.current;
     if (!container) return;
-    container.scrollBy({ left: direction === "left" ? -880 : 880, behavior: "smooth" });
+    container.scrollBy({
+      left: direction === 'left' ? -880 : 880,
+      behavior: 'smooth',
+    });
   };
 
   return (
@@ -63,7 +66,10 @@ export default function AdventureShop() {
             </form>
           </div>
           <Link to="/cart">
-            <Button variant="ghost" className="text-white hover:text-gray-300 transition">
+            <Button
+              variant="ghost"
+              className="text-white hover:text-gray-300 transition"
+            >
               <ShoppingCart className="h-5 w-5" />
             </Button>
           </Link>
@@ -71,10 +77,14 @@ export default function AdventureShop() {
       </header>
 
       {/* Banner */}
-      <section className="relative h-[300px] w-full bg-gray-200 bg-center bg-cover" style={{ backgroundImage: "url('/your-banner.jpg')" }}>
+      <section
+        className="relative h-[300px] w-full bg-gray-200 bg-center bg-cover"
+        style={{ backgroundImage: "url('/your-banner.jpg')" }}
+      >
         <div className="absolute inset-0 bg-black/50 flex flex-col justify-center items-start px-10">
           <h1 className="text-white text-4xl font-bold max-w-xl leading-tight mb-4">
-            Rain jackets<br /> for your adventures
+            Rain jackets
+            <br /> for your adventures
           </h1>
         </div>
       </section>
@@ -82,15 +92,24 @@ export default function AdventureShop() {
 
       <section className="grid grid-cols-1 md:grid-cols-2 gap-4 py-2">
         {[1, 2].map((_, index) => (
-          <div key={index} className="relative h-[250px] bg-gray-100 overflow-hidden rounded-none">
-            <img src={`/placeholder${index + 1}.jpg`} alt="Highlight" className="w-full h-full object-cover" />
+          <div
+            key={index}
+            className="relative h-[250px] bg-gray-100 overflow-hidden rounded-none"
+          >
+            <img
+              src={`/placeholder${index + 1}.jpg`}
+              alt="Highlight"
+              className="w-full h-full object-cover"
+            />
             <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-6 pb-20">
               <h2 className="text-white text-xl font-bold mb-2">
                 {index === 0
                   ? `"JET BOIL"\n camping stoves`
                   : `Extremely lightweight\n BIG AGNES tents`}
               </h2>
-              <Button className="w-fit bg-white text-black hover:bg-orange-300 hover:text-white rounded-none transition">View Products</Button>
+              <Button className="w-fit bg-white text-black hover:bg-orange-300 hover:text-white rounded-none transition">
+                View Products
+              </Button>
             </div>
           </div>
         ))}
@@ -98,7 +117,9 @@ export default function AdventureShop() {
 
       {/* Recommended */}
       <section className="w-full px-4 md:px-12 py-8 space-y-10">
-        <h2 className="text-2xl md:text-3xl font-bold text-center">RECOMMENDED</h2>
+        <h2 className="text-2xl md:text-3xl font-bold text-center">
+          RECOMMENDED
+        </h2>
 
         {/* Scroll Cards */}
         <div className="relative">
@@ -116,7 +137,7 @@ export default function AdventureShop() {
                     {item.images?.[0] ? (
                       <img
                         src={item.images[0]}
-                        alt={item.name}
+                        alt={item?.name}
                         className="h-full object-contain"
                       />
                     ) : (
@@ -124,13 +145,21 @@ export default function AdventureShop() {
                     )}
                   </div>
                 </Link>
-                <p className="text-xs text-gray-500 font-semibold uppercase hover:text-orange-300 transition">{item.brand}</p>
-                <p className="text-sm font-medium hover:text-orange-300 transition">{item.name}</p>
+                <p className="text-xs text-gray-500 font-semibold uppercase hover:text-orange-300 transition">
+                  {item.brand}
+                </p>
+                <p className="text-sm font-medium hover:text-orange-300 transition">
+                  {item?.name}
+                </p>
                 <p className="text-base font-semibold">€{item.price}</p>
 
                 {/* Actions */}
                 <div className="flex justify-center gap-2">
-                  <Button variant="outline" size="sm" onClick={() => addToCart(item)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => addToCart(item)}
+                  >
                     <ShoppingCart className="h-4 w-4 mr-1" /> Add
                   </Button>
                   <Link to={`/product/${item._id}`}>
@@ -146,13 +175,13 @@ export default function AdventureShop() {
           {/* Scroll Buttons */}
           <button
             className="absolute left-0 top-1/2 -translate-y-1/2 bg-white p-2 shadow-md z-10 hover:bg-orange-300 transition"
-            onClick={() => handleScroll("left")}
+            onClick={() => handleScroll('left')}
           >
             <ChevronLeft />
           </button>
           <button
             className="absolute right-0 top-1/2 -translate-y-1/2 bg-white p-2 shadow-md z-10 hover:bg-orange-300 transition"
-            onClick={() => handleScroll("right")}
+            onClick={() => handleScroll('right')}
           >
             <ChevronRight />
           </button>
@@ -165,17 +194,28 @@ export default function AdventureShop() {
           >
             <div className="bg-black/40 h-full w-full flex flex-col justify-center items-center text-center p-4 space-y-2">
               <h3 className="text-orange-300 text-xl font-bold">SUMMER SALE</h3>
-              <p className="text-white font-semibold">Up to 40% OFF on camping gear</p>
+              <p className="text-white font-semibold">
+                Up to 40% OFF on camping gear
+              </p>
               <Button className="bg-white text-black hover:bg-orange-400 hover:text-white transition">
                 VIEW PRODUCTS
               </Button>
             </div>
           </div>
 
-          <div className="relative bg-cover bg-center h-[200px]" style={{ backgroundImage: "url('/maintenance.jpg')" }}>
+          <div
+            className="relative bg-cover bg-center h-[200px]"
+            style={{ backgroundImage: "url('/maintenance.jpg')" }}
+          >
             <div className="bg-black/40 h-full w-full flex flex-col justify-center items-center text-center p-4 space-y-2">
-              <h3 className="text-white font-semibold">Maintenance measures<br />for clothing and footwear</h3>
-              <Button className="bg-white text-black hover:bg-orange-400 hover:text-white transition">VIEW PRODUCTS</Button>
+              <h3 className="text-white font-semibold">
+                Maintenance measures
+                <br />
+                for clothing and footwear
+              </h3>
+              <Button className="bg-white text-black hover:bg-orange-400 hover:text-white transition">
+                VIEW PRODUCTS
+              </Button>
             </div>
           </div>
         </div>
@@ -196,18 +236,28 @@ export default function AdventureShop() {
         {/* Logo + Tagline */}
         <div className="space-y-3">
           <div className="text-white text-2xl font-bold flex items-center gap-2">
-            <span>FullSend<br />Adventure</span>
+            <span>
+              FullSend
+              <br />
+              Adventure
+            </span>
           </div>
           <p className="text-sm text-white">Active leisure and tourism goods</p>
-          <p className="text-sm font-semibold text-white">Stuff for new stories.</p>
+          <p className="text-sm font-semibold text-white">
+            Stuff for new stories.
+          </p>
         </div>
 
         {/* Information */}
         <div>
           <h4 className="font-bold mb-3">Information</h4>
           <ul className="space-y-2 text-sm text-white">
-            <li><a href="#">Terms of use</a></li>
-            <li><a href="#">Privacy Policy</a></li>
+            <li>
+              <a href="#">Terms of use</a>
+            </li>
+            <li>
+              <a href="#">Privacy Policy</a>
+            </li>
           </ul>
         </div>
 

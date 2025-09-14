@@ -1,20 +1,20 @@
-import { User } from "../models/user.model.js";
+import { OAuth2Client } from "google-auth-library";
+import { Instructor } from "../models/instructor.model.js";
 import { Otp } from "../models/otp.model.js";
+import { User } from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
-import sendEmail from "../utils/sendOTP.js";
-import { OAuth2Client } from "google-auth-library";
-import {
-  getLinkedInAccessToken,
-  verifyLinkedInToken,
-} from "../utils/linkedinHandler.js";
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import {
   getFacebookAccessToken,
   verifyFacebookToken,
 } from "../utils/facebookHandler.js";
-import { Instructor } from "../models/instructor.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import {
+  getLinkedInAccessToken,
+  verifyLinkedInToken,
+} from "../utils/linkedinHandler.js";
+import sendEmail from "../utils/sendOTP.js";
 
 let client = null;
 
@@ -52,7 +52,6 @@ const registerUser = asyncHandler(async (req, res, next) => {
   if (email?.trim() === "" || !email || password?.trim() === "" || !password) {
     throw new ApiError(400, "Email and Password are Required");
   }
-
 
   const userExist = await User.findOne({ email: email });
 
@@ -588,7 +587,7 @@ const signInWithLinkedin = asyncHandler(async (req, res) => {
   if (!user) {
     user = await User.create({
       email: userDetails.email,
-      name: userDetails.name,
+      name: userDetails?.name,
       verified: true,
     }).select("email phoneNumber name verified role");
 
@@ -639,7 +638,7 @@ const signInWithFacebook = asyncHandler(async (req, res) => {
   if (!user) {
     user = await User.create({
       email: userDetails.email,
-      name: userDetails.name,
+      name: userDetails?.name,
       verified: true,
     });
 
@@ -689,18 +688,18 @@ const logoutUser = asyncHandler(async (req, res) => {
 });
 
 export {
-  logoutUser,
-  registerUser,
-  registerInstructor,
-  verifyOtp,
-  verifyNewEmail,
-  updateEmail,
-  resendOtp,
-  loginUser,
   forgotPassword,
-  updatePassword,
-  signInWithGoogle,
+  loginUser,
+  logoutUser,
+  registerInstructor,
+  registerUser,
+  resendOtp,
   signInWithApple,
-  signInWithLinkedin,
   signInWithFacebook,
+  signInWithGoogle,
+  signInWithLinkedin,
+  updateEmail,
+  updatePassword,
+  verifyNewEmail,
+  verifyOtp,
 };

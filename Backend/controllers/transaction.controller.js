@@ -307,7 +307,7 @@ const processProviderPayout = async (providerId, providerData) => {
   // Check if provider has PayPal account linked
   if (!provider.paypalPayerId || !provider.paypalEmail) {
     console.log(
-      `⚠️ Provider ${provider.name} (${providerId}) doesn't have PayPal linked, skipping payout`
+      `⚠️ Provider ${provider?.name} (${providerId}) doesn't have PayPal linked, skipping payout`
     );
     return;
   }
@@ -315,7 +315,7 @@ const processProviderPayout = async (providerId, providerData) => {
   // Check minimum payout amount
   if (totalAmount < MIN_PAYOUT_AMOUNT) {
     console.log(
-      `⚠️ Provider ${provider.name} total amount $${totalAmount.toFixed(
+      `⚠️ Provider ${provider?.name} total amount $${totalAmount.toFixed(
         2
       )} is below minimum $${MIN_PAYOUT_AMOUNT}, skipping`
     );
@@ -356,7 +356,7 @@ const processProviderPayout = async (providerId, providerData) => {
       await payout.save();
 
       console.log(
-        `✅ Payout sent to ${provider.name}: $${totalAmount.toFixed(2)}`
+        `✅ Payout sent to ${provider?.name}: $${totalAmount.toFixed(2)}`
       );
     } else {
       payout.status = "FAILED";
@@ -364,13 +364,13 @@ const processProviderPayout = async (providerId, providerData) => {
       await payout.save();
 
       console.error(
-        `❌ Payout failed for ${provider.name}:`,
+        `❌ Payout failed for ${provider?.name}:`,
         paypalResult.error
       );
     }
   } catch (error) {
     console.error(
-      `❌ Error processing payout for provider ${provider.name}:`,
+      `❌ Error processing payout for provider ${provider?.name}:`,
       error
     );
   }

@@ -1,14 +1,14 @@
+import { getLanguage } from "../middlewares/language.middleware.js";
 import { Adventure } from "../models/adventure.model.js";
 import { Session } from "../models/session.model.js";
 import { ApiError } from "../utils/ApiError.js";
-import {
-  deleteFromCloudinary,
-  uploadOnCloudinary,
-} from "../utils/cloudinary.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { translateObjectsFields, translateObjectFields } from "../utils/translation.js";
-import { getLanguage } from "../middlewares/language.middleware.js";
+import {
+    deleteFromCloudinary,
+    uploadOnCloudinary,
+} from "../utils/cloudinary.js";
+import { translateObjectFields, translateObjectsFields } from "../utils/translation.js";
 
 export const getAllAdventure = asyncHandler(async (req, res) => {
   const language = getLanguage(req);
@@ -135,7 +135,7 @@ export const updateAdventure = asyncHandler(async (req, res) => {
     adventure.medias = mediasUrl;
   }
 
-  adventure.name = name || adventure.name;
+  adventure.name = name || adventure?.name;
   adventure.description = description || adventure.description;
   adventure.location = location || adventure.location;
   adventure.date = date || adventure.date;

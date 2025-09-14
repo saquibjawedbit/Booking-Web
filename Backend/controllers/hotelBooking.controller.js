@@ -1,12 +1,11 @@
-import { HotelBooking } from "../models/hotelBooking.model.js";
 import { Hotel } from "../models/hotel.model.js";
+import { HotelBooking } from "../models/hotelBooking.model.js";
 import { User } from "../models/user.model.js";
-import ApiResponse from "../utils/ApiResponse.js";
+import PayPalService from "../services/paypal.service.js";
 import { ApiError } from "../utils/ApiError.js";
+import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { createRevolutOrder } from "../utils/revolut.js";
-import PayPalService from "../services/paypal.service.js";
-
 
 // Create a new hotel booking
 export const createHotelBooking = asyncHandler(async (req, res) => {
@@ -47,8 +46,12 @@ export const createHotelBooking = asyncHandler(async (req, res) => {
   }
 
   // Calculate total price
-  const totalPrice = hotelData.pricePerNight * numberOfRooms *
-    Math.ceil((new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24));
+  const totalPrice =
+    hotelData.pricePerNight *
+    numberOfRooms *
+    Math.ceil(
+      (new Date(checkOutDate) - new Date(checkInDate)) / (1000 * 60 * 60 * 24)
+    );
 
   const booking = await HotelBooking.create({
     user: req.user._id,
@@ -62,7 +65,6 @@ export const createHotelBooking = asyncHandler(async (req, res) => {
     modeOfPayment: req.body.modeOfPayment || "revolut",
   });
 
-
   // If payment mode is Revolut, create a payment order
   let order;
 
@@ -70,22 +72,21 @@ export const createHotelBooking = asyncHandler(async (req, res) => {
     order = await createRevolutOrder(
       totalPrice,
       hotelData.currency || "GBP",
-      `Hotel booking for ${hotelData.name}`,
+      `Hotel booking for ${hotelData?.name}`
     );
 
     booking.transactionId = order.id; // Store Revolut order ID
     booking.status = "pending"; // Set initial status to pending
     await booking.save();
 
-    res.status(201).json(
-      new ApiResponse(201, order, "Hotel booking created successfully")
-    );
-  }
-  else {
+    res
+      .status(201)
+      .json(new ApiResponse(201, order, "Hotel booking created successfully"));
+  } else {
     const payPalService = new PayPalService();
     order = await payPalService.createOrder(
       totalPrice,
-      hotelData.currency || "GBP",
+      hotelData.currency || "GBP"
     );
 
     booking.transactionId = order.id; // Store PayPal order ID
@@ -93,9 +94,13 @@ export const createHotelBooking = asyncHandler(async (req, res) => {
     await booking.save();
 
     res.status(201).json(
-      new ApiResponse(201, {
-        checkout_url: order.links[1].href,
-      }, "Hotel booking created successfully")
+      new ApiResponse(
+        201,
+        {
+          checkout_url: order.links[1].href,
+        },
+        "Hotel booking created successfully"
+      )
     );
   }
 });
@@ -109,7 +114,7 @@ export const getAllHotelBookings = asyncHandler(async (req, res) => {
     modeOfPayment,
     search,
     sortBy = "createdAt",
-    sortOrder = "desc"
+    sortOrder = "desc",
   } = req.query;
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -130,11 +135,11 @@ export const getAllHotelBookings = asyncHandler(async (req, res) => {
     const users = await User.find({
       $or: [
         { name: { $regex: search, $options: "i" } },
-        { email: { $regex: search, $options: "i" } }
-      ]
+        { email: { $regex: search, $options: "i" } },
+      ],
     }).select("_id");
 
-    const userIds = users.map(user => user._id);
+    const userIds = users.map((user) => user._id);
     query.user = { $in: userIds };
   }
 
@@ -152,12 +157,16 @@ export const getAllHotelBookings = asyncHandler(async (req, res) => {
   const total = await HotelBooking.countDocuments(query);
 
   return res.status(200).json(
-    new ApiResponse(200, {
-      bookings,
-      total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit),
-    }, "Hotel bookings retrieved successfully")
+    new ApiResponse(
+      200,
+      {
+        bookings,
+        total,
+        page: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+      },
+      "Hotel bookings retrieved successfully"
+    )
   );
 });
 
@@ -169,7 +178,7 @@ export const getHotelBookingsByUserId = asyncHandler(async (req, res) => {
     limit = 10,
     status,
     sortBy = "createdAt",
-    sortOrder = "desc"
+    sortOrder = "desc",
   } = req.query;
 
   // Validate user ID
@@ -206,12 +215,16 @@ export const getHotelBookingsByUserId = asyncHandler(async (req, res) => {
   const total = await HotelBooking.countDocuments(query);
 
   return res.status(200).json(
-    new ApiResponse(200, {
-      bookings,
-      total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit),
-    }, "User hotel bookings retrieved successfully")
+    new ApiResponse(
+      200,
+      {
+        bookings,
+        total,
+        page: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+      },
+      "User hotel bookings retrieved successfully"
+    )
   );
 });
 
@@ -222,7 +235,7 @@ export const getMyHotelBookings = asyncHandler(async (req, res) => {
     limit = 10,
     status,
     sortBy = "createdAt",
-    sortOrder = "desc"
+    sortOrder = "desc",
   } = req.query;
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -248,12 +261,16 @@ export const getMyHotelBookings = asyncHandler(async (req, res) => {
   const total = await HotelBooking.countDocuments(query);
 
   return res.status(200).json(
-    new ApiResponse(200, {
-      bookings,
-      total,
-      page: parseInt(page),
-      totalPages: Math.ceil(total / limit),
-    }, "My hotel bookings retrieved successfully")
+    new ApiResponse(
+      200,
+      {
+        bookings,
+        total,
+        page: parseInt(page),
+        totalPages: Math.ceil(total / limit),
+      },
+      "My hotel bookings retrieved successfully"
+    )
   );
 });
 
@@ -267,15 +284,20 @@ export const getHotelBookingById = asyncHandler(async (req, res) => {
 
   const booking = await HotelBooking.findById(id)
     .populate("user", "name email phoneNumber")
-    .populate("hotels.hotel", "name location pricePerNight rating medias amenities");
+    .populate(
+      "hotels.hotel",
+      "name location pricePerNight rating medias amenities"
+    );
 
   if (!booking) {
     throw new ApiError(404, "Hotel booking not found");
   }
 
-  return res.status(200).json(
-    new ApiResponse(200, booking, "Hotel booking retrieved successfully")
-  );
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, booking, "Hotel booking retrieved successfully")
+    );
 });
 
 // Update hotel booking status
@@ -288,7 +310,10 @@ export const updateHotelBookingStatus = asyncHandler(async (req, res) => {
   }
 
   if (!status || !["pending", "confirmed", "cancelled"].includes(status)) {
-    throw new ApiError(400, "Valid status is required (pending, confirmed, cancelled)");
+    throw new ApiError(
+      400,
+      "Valid status is required (pending, confirmed, cancelled)"
+    );
   }
 
   const booking = await HotelBooking.findById(id);
@@ -303,9 +328,15 @@ export const updateHotelBookingStatus = asyncHandler(async (req, res) => {
     .populate("user", "name email phoneNumber")
     .populate("hotels.hotel", "name location pricePerNight rating");
 
-  return res.status(200).json(
-    new ApiResponse(200, updatedBooking, "Hotel booking status updated successfully")
-  );
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        updatedBooking,
+        "Hotel booking status updated successfully"
+      )
+    );
 });
 
 // Cancel a hotel booking (user can only cancel their own bookings)
@@ -338,9 +369,15 @@ export const cancelHotelBooking = asyncHandler(async (req, res) => {
     .populate("user", "name email phoneNumber")
     .populate("hotels.hotel", "name location pricePerNight rating");
 
-  return res.status(200).json(
-    new ApiResponse(200, updatedBooking, "Hotel booking cancelled successfully")
-  );
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        updatedBooking,
+        "Hotel booking cancelled successfully"
+      )
+    );
 });
 
 // Delete a hotel booking (admin only)
@@ -358,7 +395,7 @@ export const deleteHotelBooking = asyncHandler(async (req, res) => {
 
   await HotelBooking.findByIdAndDelete(id);
 
-  return res.status(200).json(
-    new ApiResponse(200, null, "Hotel booking deleted successfully")
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "Hotel booking deleted successfully"));
 });

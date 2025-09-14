@@ -1,230 +1,263 @@
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Search, Filter, Download, ChevronDown, Eye, Edit, Trash2, ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "../../../components/ui/button"
-import { Input } from "../../../components/ui/input"
+import { motion } from 'framer-motion';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Edit,
+  Eye,
+  Filter,
+  Search,
+  Trash2,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import {
+  getAllHotelBookings,
+  getAllItemBookings,
+  getAllSessionBookings,
+} from '../../../Api/booking.api';
+import { Badge } from '../../../components/ui/badge';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "../../../components/ui/dropdown-menu"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../components/ui/table"
-import { Card, CardContent } from "../../../components/ui/card"
-import { Badge } from "../../../components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../components/ui/tabs"
+} from '../../../components/ui/dropdown-menu';
+import { Input } from '../../../components/ui/input';
 import {
-  getAllSessionBookings,
-  getAllHotelBookings,
-  getAllItemBookings,
-  getCurrentUserItemBookings,
-} from "../../../Api/booking.api"
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '../../../components/ui/table';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../../../components/ui/tabs';
 
 export default function Dash_Bookings() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [activeTab, setActiveTab] = useState("items")
-  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [activeTab, setActiveTab] = useState('items');
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState({
     items: 1,
     sessions: 1,
-    hotels: 1
-  })
-  const [itemsPerPage] = useState(10)
-    // State for different booking types
-  const [itemBookings, setItemBookings] = useState([])
-  const [sessionBookings, setSessionBookings] = useState([])
-  const [hotelBookings, setHotelBookings] = useState([])
-  
+    hotels: 1,
+  });
+  const [itemsPerPage] = useState(10);
+  // State for different booking types
+  const [itemBookings, setItemBookings] = useState([]);
+  const [sessionBookings, setSessionBookings] = useState([]);
+  const [hotelBookings, setHotelBookings] = useState([]);
+
   // Pagination metadata from backend
   const [paginationMeta, setPaginationMeta] = useState({
     items: { total: 0, totalPages: 0, currentPage: 1 },
     sessions: { total: 0, totalPages: 0, currentPage: 1 },
-    hotels: { total: 0, totalPages: 0, currentPage: 1 }
-  })
-  
+    hotels: { total: 0, totalPages: 0, currentPage: 1 },
+  });
+
   const [loading, setLoading] = useState({
     items: false,
     sessions: false,
-    hotels: false
-  })  // Fetch bookings data with pagination
+    hotels: false,
+  }); // Fetch bookings data with pagination
   const fetchItemBookings = async (page = 1) => {
-    setLoading(prev => ({ ...prev, items: true }))
+    setLoading((prev) => ({ ...prev, items: true }));
     try {
       const params = {
         page: page.toString(),
         limit: itemsPerPage.toString(),
         sortBy: 'createdAt',
-        sortOrder: 'desc'
-      }
-      
+        sortOrder: 'desc',
+      };
+
       if (statusFilter !== 'all') {
-        params.status = statusFilter
+        params.status = statusFilter;
       }
-      
-      const response = await getAllItemBookings(params)
-      
-      const bookingsData = response?.data?.data?.data || []
+
+      const response = await getAllItemBookings(params);
+
+      const bookingsData = response?.data?.data?.data || [];
       const meta = {
         total: response?.data?.data?.total || 0,
         totalPages: response?.data?.data?.totalPages || 0,
-        currentPage: response?.data?.data?.page || 1
-      }
-      
-      setItemBookings(Array.isArray(bookingsData) ? bookingsData : [])
-      setPaginationMeta(prev => ({ ...prev, items: meta }))
-    } catch (error) { 
-      setItemBookings([])
-      setPaginationMeta(prev => ({ ...prev, items: { total: 0, totalPages: 0, currentPage: 1 } }))
+        currentPage: response?.data?.data?.page || 1,
+      };
+
+      setItemBookings(Array.isArray(bookingsData) ? bookingsData : []);
+      setPaginationMeta((prev) => ({ ...prev, items: meta }));
+    } catch (error) {
+      setItemBookings([]);
+      setPaginationMeta((prev) => ({
+        ...prev,
+        items: { total: 0, totalPages: 0, currentPage: 1 },
+      }));
     } finally {
-      setLoading(prev => ({ ...prev, items: false }))
+      setLoading((prev) => ({ ...prev, items: false }));
     }
-  }
+  };
 
   const fetchSessionBookings = async (page = 1) => {
-    setLoading(prev => ({ ...prev, sessions: true }))
+    setLoading((prev) => ({ ...prev, sessions: true }));
     try {
       const params = {
         page: page.toString(),
         limit: itemsPerPage.toString(),
         sortBy: 'createdAt',
-        sortOrder: 'desc'
-      }
-      
+        sortOrder: 'desc',
+      };
+
       if (statusFilter !== 'all') {
-        params.status = statusFilter
+        params.status = statusFilter;
       }
-      
-      const response = await getAllSessionBookings(params)
-      
-      const bookingsData = response?.data?.data || []
+
+      const response = await getAllSessionBookings(params);
+
+      const bookingsData = response?.data?.data || [];
       const meta = {
         total: response?.data?.total || 0,
         totalPages: response?.data?.totalPages || 0,
-        currentPage: response?.data?.page || 1
-      }
-      
-      setSessionBookings(Array.isArray(bookingsData) ? bookingsData : [])
-      setPaginationMeta(prev => ({ ...prev, sessions: meta }))
+        currentPage: response?.data?.page || 1,
+      };
+
+      setSessionBookings(Array.isArray(bookingsData) ? bookingsData : []);
+      setPaginationMeta((prev) => ({ ...prev, sessions: meta }));
     } catch (error) {
-      setSessionBookings([])
-      setPaginationMeta(prev => ({ ...prev, sessions: { total: 0, totalPages: 0, currentPage: 1 } }))
+      setSessionBookings([]);
+      setPaginationMeta((prev) => ({
+        ...prev,
+        sessions: { total: 0, totalPages: 0, currentPage: 1 },
+      }));
     } finally {
-      setLoading(prev => ({ ...prev, sessions: false }))
+      setLoading((prev) => ({ ...prev, sessions: false }));
     }
-  }
+  };
 
   const fetchHotelBookings = async (page = 1) => {
-    setLoading(prev => ({ ...prev, hotels: true }))
+    setLoading((prev) => ({ ...prev, hotels: true }));
     try {
       const params = {
         page: page.toString(),
         limit: itemsPerPage.toString(),
         sortBy: 'createdAt',
-        sortOrder: 'desc'
-      }
-      
-      if (statusFilter !== 'all') {
-        params.status = statusFilter
-      }
-      
-      const response = await getAllHotelBookings(params)
+        sortOrder: 'desc',
+      };
 
-      
-      const bookingsData = response?.data?.data?.bookings || []
+      if (statusFilter !== 'all') {
+        params.status = statusFilter;
+      }
+
+      const response = await getAllHotelBookings(params);
+
+      const bookingsData = response?.data?.data?.bookings || [];
       const meta = {
         total: response?.data?.data?.total || 0,
         totalPages: response?.data?.data?.totalPages || 0,
-        currentPage: response?.data?.data?.page || 1
-      }
-      
-      setHotelBookings(Array.isArray(bookingsData) ? bookingsData : [])
-      setPaginationMeta(prev => ({ ...prev, hotels: meta }))
+        currentPage: response?.data?.data?.page || 1,
+      };
+
+      setHotelBookings(Array.isArray(bookingsData) ? bookingsData : []);
+      setPaginationMeta((prev) => ({ ...prev, hotels: meta }));
     } catch (error) {
-      setHotelBookings([])
-      setPaginationMeta(prev => ({ ...prev, hotels: { total: 0, totalPages: 0, currentPage: 1 } }))
+      setHotelBookings([]);
+      setPaginationMeta((prev) => ({
+        ...prev,
+        hotels: { total: 0, totalPages: 0, currentPage: 1 },
+      }));
     } finally {
-      setLoading(prev => ({ ...prev, hotels: false }))
+      setLoading((prev) => ({ ...prev, hotels: false }));
     }
-  }
+  };
 
   // Initial fetch
   useEffect(() => {
-    fetchItemBookings(currentPage.items)
-    fetchSessionBookings(currentPage.sessions)
-    fetchHotelBookings(currentPage.hotels)
-  }, [])  // Refetch data when filters change
-
+    fetchItemBookings(currentPage.items);
+    fetchSessionBookings(currentPage.sessions);
+    fetchHotelBookings(currentPage.hotels);
+  }, []); // Refetch data when filters change
 
   useEffect(() => {
-    fetchItemBookings(1)
-    fetchSessionBookings(1)
-    fetchHotelBookings(1)
-    setCurrentPage({ items: 1, sessions: 1, hotels: 1 })
-  }, [statusFilter])
+    fetchItemBookings(1);
+    fetchSessionBookings(1);
+    fetchHotelBookings(1);
+    setCurrentPage({ items: 1, sessions: 1, hotels: 1 });
+  }, [statusFilter]);
 
   // Handle search with debouncing
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchItemBookings(1)
-      fetchSessionBookings(1)
-      fetchHotelBookings(1)
-      setCurrentPage({ items: 1, sessions: 1, hotels: 1 })
-    }, 500) // 500ms debounce
+      fetchItemBookings(1);
+      fetchSessionBookings(1);
+      fetchHotelBookings(1);
+      setCurrentPage({ items: 1, sessions: 1, hotels: 1 });
+    }, 500); // 500ms debounce
 
-    return () => clearTimeout(timeoutId)
-  }, [searchTerm])
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm]);
 
   // Handle page changes
   const handlePageChange = (type, page) => {
-    setCurrentPage(prev => ({
+    setCurrentPage((prev) => ({
       ...prev,
-      [type]: page
-    }))
-    
+      [type]: page,
+    }));
+
     // Fetch new data for the specific type
     if (type === 'items') {
-      fetchItemBookings(page)
+      fetchItemBookings(page);
     } else if (type === 'sessions') {
-      fetchSessionBookings(page)
+      fetchSessionBookings(page);
     } else if (type === 'hotels') {
-      fetchHotelBookings(page)
+      fetchHotelBookings(page);
     }
-  }
+  };
 
   // Filter bookings based on search term (now done on backend, but keeping for client-side if needed)
   const getFilteredBookings = (bookings) => {
-    if (!searchTerm) return bookings
-    
+    if (!searchTerm) return bookings;
+
     if (!Array.isArray(bookings)) {
-      return []
+      return [];
     }
-    
+
     return bookings.filter((booking) => {
-      if (!booking) return false
-      
-      const bookingData = booking.user?.name || booking.customerName || ''
-      const activityName = booking.item?.name || booking.session?.title || booking.hotel?.name || booking.adventure || ''
-      
+      if (!booking) return false;
+
+      const bookingData = booking.user?.name || booking.customerName || '';
+      const activityName =
+        booking.item?.name ||
+        booking.session?.title ||
+        booking.hotel?.name ||
+        booking.adventure ||
+        '';
+
       const matchesSearch =
         bookingData.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        activityName.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      return matchesSearch
-    })
-  }
+        activityName.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return matchesSearch;
+    });
+  };
 
   // Get filtered bookings (search is now handled on backend, but keeping for additional client filtering if needed)
-  const filteredItemBookings = getFilteredBookings(itemBookings)
-  const filteredSessionBookings = getFilteredBookings(sessionBookings)
-  const filteredHotelBookings = getFilteredBookings(hotelBookings)
+  const filteredItemBookings = getFilteredBookings(itemBookings);
+  const filteredSessionBookings = getFilteredBookings(sessionBookings);
+  const filteredHotelBookings = getFilteredBookings(hotelBookings);
 
   // Format date function
   const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
-    return new Date(dateString).toLocaleDateString()
-  }
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
+  };
 
   return (
     <motion.div
@@ -262,11 +295,21 @@ export default function Dash_Bookings() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[200px]">
-              <DropdownMenuItem onClick={() => setStatusFilter("all")}>All Bookings</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("confirmed")}>Confirmed Bookings</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("pending")}>Pending Bookings</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("completed")}>Completed Bookings</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setStatusFilter("cancelled")}>Cancelled Bookings</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('all')}>
+                All Bookings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('confirmed')}>
+                Confirmed Bookings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('pending')}>
+                Pending Bookings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('completed')}>
+                Completed Bookings
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter('cancelled')}>
+                Cancelled Bookings
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -277,16 +320,21 @@ export default function Dash_Bookings() {
         </div>
       </div>
 
-      <Tabs defaultValue="items" className="w-full" onValueChange={setActiveTab}>
+      <Tabs
+        defaultValue="items"
+        className="w-full"
+        onValueChange={setActiveTab}
+      >
         <TabsList className="grid grid-cols-3 mb-4">
           <TabsTrigger value="items">Item Bookings</TabsTrigger>
           <TabsTrigger value="sessions">Session Bookings</TabsTrigger>
           <TabsTrigger value="hotels">Hotel Bookings</TabsTrigger>
-        </TabsList>        <TabsContent value="items">
-          <BookingsTable 
-            bookings={filteredItemBookings} 
-            loading={loading.items} 
-            type="item" 
+        </TabsList>{' '}
+        <TabsContent value="items">
+          <BookingsTable
+            bookings={filteredItemBookings}
+            loading={loading.items}
+            type="item"
           />
           <PaginationControls
             currentPage={paginationMeta.items.currentPage}
@@ -296,12 +344,11 @@ export default function Dash_Bookings() {
             itemsPerPage={itemsPerPage}
           />
         </TabsContent>
-        
         <TabsContent value="sessions">
-          <BookingsTable 
-            bookings={filteredSessionBookings} 
-            loading={loading.sessions} 
-            type="session" 
+          <BookingsTable
+            bookings={filteredSessionBookings}
+            loading={loading.sessions}
+            type="session"
           />
           <PaginationControls
             currentPage={paginationMeta.sessions.currentPage}
@@ -311,12 +358,11 @@ export default function Dash_Bookings() {
             itemsPerPage={itemsPerPage}
           />
         </TabsContent>
-        
         <TabsContent value="hotels">
-          <BookingsTable 
-            bookings={filteredHotelBookings} 
-            loading={loading.hotels} 
-            type="hotel" 
+          <BookingsTable
+            bookings={filteredHotelBookings}
+            loading={loading.hotels}
+            type="hotel"
           />
           <PaginationControls
             currentPage={paginationMeta.hotels.currentPage}
@@ -328,14 +374,14 @@ export default function Dash_Bookings() {
         </TabsContent>
       </Tabs>
     </motion.div>
-  )
+  );
 }
 
 // Reusable component for bookings tables
 function BookingsTable({ bookings, loading, type }) {
   // Ensure bookings is always an array
-  const safeBookings = Array.isArray(bookings) ? bookings : []
-  
+  const safeBookings = Array.isArray(bookings) ? bookings : [];
+
   if (loading) {
     return (
       <Card>
@@ -343,7 +389,7 @@ function BookingsTable({ bookings, loading, type }) {
           <p>Loading {type} bookings...</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (safeBookings.length === 0) {
@@ -353,7 +399,7 @@ function BookingsTable({ bookings, loading, type }) {
           <p>No {type} bookings found.</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   const getTableHeaders = () => {
@@ -362,53 +408,62 @@ function BookingsTable({ bookings, loading, type }) {
       <TableHead key="date">Date</TableHead>,
       <TableHead key="amount">Amount</TableHead>,
       <TableHead key="status">Status</TableHead>,
-      <TableHead key="actions" className="text-right">Actions</TableHead>
-    ]
+      <TableHead key="actions" className="text-right">
+        Actions
+      </TableHead>,
+    ];
 
-    if (type === "item") {
-      return [
-        <TableHead key="item">Booking Id</TableHead>,
-        ...commonHeaders
-      ]
-    } else if (type === "session") {
+    if (type === 'item') {
+      return [<TableHead key="item">Booking Id</TableHead>, ...commonHeaders];
+    } else if (type === 'session') {
       return [
         <TableHead key="session">Session</TableHead>,
         ...commonHeaders,
-        <TableHead key="participants">Participants</TableHead>
-      ]
-    } else if (type === "hotel") {
+        <TableHead key="participants">Participants</TableHead>,
+      ];
+    } else if (type === 'hotel') {
       return [
         <TableHead key="hotel">Hotel</TableHead>,
         ...commonHeaders,
         <TableHead key="checkin">Check-in</TableHead>,
-        <TableHead key="checkout">Check-out</TableHead>
-      ]
+        <TableHead key="checkout">Check-out</TableHead>,
+      ];
     }
-    
-    return commonHeaders
-  }
+
+    return commonHeaders;
+  };
 
   const renderTableRow = (booking) => {
-    if (!booking) return null
-    
-    const userName = booking.user?.name || booking.customerName || 'N/A'
-    const bookingDate = booking.createdAt || booking.bookingDate || booking.date
-    const formattedDate = bookingDate ? new Date(bookingDate).toLocaleDateString() : 'N/A'
-    const bookingStatus = booking.status || 'pending'
-    const amount = booking.totalAmount || booking.amount || 0
-    
+    if (!booking) return null;
+
+    const userName = booking.user?.name || booking.customerName || 'N/A';
+    const bookingDate =
+      booking.createdAt || booking.bookingDate || booking.date;
+    const formattedDate = bookingDate
+      ? new Date(bookingDate).toLocaleDateString()
+      : 'N/A';
+    const bookingStatus = booking.status || 'pending';
+    const amount = booking.totalAmount || booking.amount || 0;
+
     const getStatusVariant = (status) => {
       switch (status.toLowerCase()) {
-        case 'confirmed': return 'default'
-        case 'pending': return 'outline'
-        case 'completed': return 'secondary'
-        case 'cancelled': return 'destructive'
-        default: return 'outline'
+        case 'confirmed':
+          return 'default';
+        case 'pending':
+          return 'outline';
+        case 'completed':
+          return 'secondary';
+        case 'cancelled':
+          return 'destructive';
+        default:
+          return 'outline';
       }
-    }
+    };
 
     const commonCells = [
-      <TableCell key="customer" className="font-medium">{userName}</TableCell>,
+      <TableCell key="customer" className="font-medium">
+        {userName}
+      </TableCell>,
       <TableCell key="date">{formattedDate}</TableCell>,
       <TableCell key="amount">${amount}</TableCell>,
       <TableCell key="status">
@@ -428,31 +483,35 @@ function BookingsTable({ bookings, loading, type }) {
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-      </TableCell>
-    ]
+      </TableCell>,
+    ];
 
-    if (type === "item") {
+    if (type === 'item') {
       const itemName = booking._id;
       return (
         <TableRow key={booking._id || booking.id}>
           <TableCell>{itemName}</TableCell>
           {commonCells}
         </TableRow>
-      )
-    } else if (type === "session") {
-      const sessionTitle = booking.session?.title || 'N/A'
-      const participants = booking.participants || booking.bookedSeats || 1
+      );
+    } else if (type === 'session') {
+      const sessionTitle = booking.session?.title || 'N/A';
+      const participants = booking.participants || booking.bookedSeats || 1;
       return (
         <TableRow key={booking._id || booking.id}>
           <TableCell>{sessionTitle}</TableCell>
           {commonCells}
           <TableCell>{participants}</TableCell>
         </TableRow>
-      )
-    } else if (type === "hotel") {
-      const hotelName = booking.hotel?.name || 'N/A'
-      const checkIn = booking.checkInDate ? new Date(booking.checkInDate).toLocaleDateString() : 'N/A'
-      const checkOut = booking.checkOutDate ? new Date(booking.checkOutDate).toLocaleDateString() : 'N/A'
+      );
+    } else if (type === 'hotel') {
+      const hotelName = booking.hotel?.name || 'N/A';
+      const checkIn = booking.checkInDate
+        ? new Date(booking.checkInDate).toLocaleDateString()
+        : 'N/A';
+      const checkOut = booking.checkOutDate
+        ? new Date(booking.checkOutDate).toLocaleDateString()
+        : 'N/A';
       return (
         <TableRow key={booking._id || booking.id}>
           <TableCell>{hotelName}</TableCell>
@@ -460,71 +519,73 @@ function BookingsTable({ bookings, loading, type }) {
           <TableCell>{checkIn}</TableCell>
           <TableCell>{checkOut}</TableCell>
         </TableRow>
-      )
+      );
     }
-    
-    return null
-  }
+
+    return null;
+  };
 
   return (
     <Card>
       <CardContent className="p-0">
         <Table>
           <TableHeader>
-            <TableRow>
-              {getTableHeaders()}
-            </TableRow>
+            <TableRow>{getTableHeaders()}</TableRow>
           </TableHeader>
-          <TableBody>
-            {safeBookings.map(renderTableRow)}
-          </TableBody>
+          <TableBody>{safeBookings.map(renderTableRow)}</TableBody>
         </Table>
       </CardContent>
     </Card>
-  )
+  );
 }
 
 // Pagination Controls Component
-function PaginationControls({ currentPage, totalPages, onPageChange, totalItems, itemsPerPage }) {
-  if (totalPages <= 1) return null
+function PaginationControls({
+  currentPage,
+  totalPages,
+  onPageChange,
+  totalItems,
+  itemsPerPage,
+}) {
+  if (totalPages <= 1) return null;
 
-  const startItem = (currentPage - 1) * itemsPerPage + 1
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems)
+  const startItem = (currentPage - 1) * itemsPerPage + 1;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   const getPageNumbers = () => {
-    const pages = []
-    const maxVisiblePages = 5
-    
+    const pages = [];
+    const maxVisiblePages = 5;
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
-        pages.push(i)
+        pages.push(i);
       }
     } else {
       if (currentPage <= 3) {
         for (let i = 1; i <= 4; i++) {
-          pages.push(i)
+          pages.push(i);
         }
-        pages.push('...')
-        pages.push(totalPages)
+        pages.push('...');
+        pages.push(totalPages);
       } else if (currentPage >= totalPages - 2) {
-        pages.push(1)
-        pages.push('...')
+        pages.push(1);
+        pages.push('...');
         for (let i = totalPages - 3; i <= totalPages; i++) {
-          pages.push(i)
+          pages.push(i);
         }
       } else {
-        pages.push(1)
-        pages.push('...')
+        pages.push(1);
+        pages.push('...');
         for (let i = currentPage - 1; i <= currentPage + 1; i++) {
-          pages.push(i)
+          pages.push(i);
         }
-        pages.push('...')
-        pages.push(totalPages)
+        pages.push('...');
+        pages.push(totalPages);
       }
     }
-    
-    return pages
-  }
+
+    return pages;
+  };
 
   return (
     <div className="flex items-center justify-between px-6 py-4 border-t bg-white">
@@ -540,7 +601,7 @@ function PaginationControls({ currentPage, totalPages, onPageChange, totalItems,
           <span className="font-medium">{totalPages}</span>
         </div>
       </div>
-      
+
       {/* Right side - Navigation controls */}
       <div className="flex items-center space-x-2">
         {/* Previous button */}
@@ -554,10 +615,10 @@ function PaginationControls({ currentPage, totalPages, onPageChange, totalItems,
           <ChevronLeft className="h-4 w-4" />
           <span>Previous</span>
         </Button>
-        
+
         {/* Page numbers */}
         <div className="flex items-center space-x-1">
-          {getPageNumbers().map((page, index) => (
+          {getPageNumbers().map((page, index) =>
             page === '...' ? (
               <span key={index} className="px-2 text-muted-foreground">
                 ...
@@ -565,7 +626,7 @@ function PaginationControls({ currentPage, totalPages, onPageChange, totalItems,
             ) : (
               <Button
                 key={page}
-                variant={currentPage === page ? "default" : "outline"}
+                variant={currentPage === page ? 'default' : 'outline'}
                 size="sm"
                 onClick={() => onPageChange(page)}
                 className="h-8 w-8 p-0"
@@ -573,9 +634,9 @@ function PaginationControls({ currentPage, totalPages, onPageChange, totalItems,
                 {page}
               </Button>
             )
-          ))}
+          )}
         </div>
-        
+
         {/* Next button */}
         <Button
           variant="outline"
@@ -589,6 +650,5 @@ function PaginationControls({ currentPage, totalPages, onPageChange, totalItems,
         </Button>
       </div>
     </div>
-  )
+  );
 }
-

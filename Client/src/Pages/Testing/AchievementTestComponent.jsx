@@ -224,7 +224,7 @@ export default function AchievementTestComponent() {
                       .map((section, index) => {
                         const matchedAdventure = adventureStats.find(
                           (adv) =>
-                            adv.name.toLowerCase() ===
+                            adv?.name.toLowerCase() ===
                             section.category.toLowerCase()
                         );
 

@@ -17,7 +17,7 @@ export const getMe = asyncHandler(async (req, res) => {
       200,
       {
         id: user._id,
-        name: user.name,
+        name: user?.name,
         email: user.email,
         role: user.role,
         paypalLinked: user.paypalAccount?.linked || false,

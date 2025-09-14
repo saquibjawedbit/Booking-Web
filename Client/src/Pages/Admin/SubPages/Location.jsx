@@ -1,20 +1,35 @@
-import { useState, useEffect } from "react";
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { Card, CardContent } from "../../../components/ui/card";
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { Dialog, DialogContent, DialogTitle } from "../../../components/ui/dialog";
-import { createLocation, updateLocation, deleteLocation, fetchLocations } from "../../../Api/location.api";
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useEffect, useState } from 'react';
+import {
+  MapContainer,
+  Marker,
+  TileLayer,
+  useMap,
+  useMapEvents,
+} from 'react-leaflet';
+import {
+  createLocation,
+  deleteLocation,
+  fetchLocations,
+  updateLocation,
+} from '../../../Api/location.api';
+import { Button } from '../../../components/ui/button';
+import { Card, CardContent } from '../../../components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+} from '../../../components/ui/dialog';
+import { Input } from '../../../components/ui/input';
 
 // Fix default marker icon issue in leaflet
 const markerIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [1, -34],
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   shadowSize: [41, 41],
 });
 
@@ -39,58 +54,64 @@ function FocusMapOnPosition({ position }) {
 }
 
 function fetchAddressFromCoords(lat, lng, setAddress) {
-  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+  fetch(
+    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
+  )
     .then((res) => res.json())
-    .then((data) => setAddress(data.display_name || "Unknown address"))
-    .catch(() => setAddress("Unknown address"));
+    .then((data) => setAddress(data.display_name || 'Unknown address'))
+    .catch(() => setAddress('Unknown address'));
 }
 
 function fetchCoordsFromAddress(address, setPosition, setAddress, setError) {
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+  fetch(
+    `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+  )
     .then((res) => res.json())
     .then((data) => {
       if (data && data[0]) {
         setPosition([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
         setAddress(data[0].display_name);
-        setError("");
+        setError('');
       } else {
-        setError("Address not found");
+        setError('Address not found');
       }
     })
-    .catch(() => setError("Error fetching coordinates"));
+    .catch(() => setError('Error fetching coordinates'));
 }
 
 function LocationFormModal({ open, onClose, onSubmit, initialData }) {
-  const [name, setName] = useState(initialData?.name || "");
-  const [description, setDescription] = useState(initialData?.description || "");
+  const [name, setName] = useState(initialData?.name || '');
+  const [description, setDescription] = useState(
+    initialData?.description || ''
+  );
   const [position, setPosition] = useState(initialData?.position || null);
-  const [address, setAddress] = useState(initialData?.address || "");
-  const [addressInput, setAddressInput] = useState("");
-  const [geoError, setGeoError] = useState("");
+  const [address, setAddress] = useState(initialData?.address || '');
+  const [addressInput, setAddressInput] = useState('');
+  const [geoError, setGeoError] = useState('');
 
   useEffect(() => {
     if (position) {
       fetchAddressFromCoords(position[0], position[1], setAddress);
     } else {
-      setAddress("");
+      setAddress('');
     }
   }, [position]);
 
   useEffect(() => {
     if (open && initialData) {
-      setName(initialData.name || "");
-      setDescription(initialData.description || "");
+      setName(initialData?.name || '');
+      setDescription(initialData.description || '');
       setPosition(initialData.position || null);
-      setAddress(initialData.address || "");
-      setAddressInput("");
-      setGeoError("");
+      setAddress(initialData.address || '');
+      setAddressInput('');
+      setGeoError('');
     } else if (open && !initialData) {
-      setName("");
-      setDescription("");
+      setName('');
+      setDescription('');
       setPosition(null);
-      setAddress("");
-      setAddressInput("");
-      setGeoError("");
+      setAddress('');
+      setAddressInput('');
+      setGeoError('');
     }
   }, [open, initialData]);
 
@@ -114,7 +135,9 @@ function LocationFormModal({ open, onClose, onSubmit, initialData }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
-        <DialogTitle>{initialData ? "Edit Location" : "Add Location"}</DialogTitle>
+        <DialogTitle>
+          {initialData ? 'Edit Location' : 'Add Location'}
+        </DialogTitle>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-md">
           <Input
             placeholder="Location Name"
@@ -128,22 +151,30 @@ function LocationFormModal({ open, onClose, onSubmit, initialData }) {
             onChange={(e) => setDescription(e.target.value)}
           />
           <div>
-            <div className="mb-2 font-medium">Pick location on map or search by address:</div>
+            <div className="mb-2 font-medium">
+              Pick location on map or search by address:
+            </div>
             <div className="flex gap-2 mb-2">
               <Input
                 placeholder="Search address..."
                 value={addressInput}
                 onChange={(e) => setAddressInput(e.target.value)}
               />
-              <Button type="button" onClick={handleAddressSearch} variant="outline">
+              <Button
+                type="button"
+                onClick={handleAddressSearch}
+                variant="outline"
+              >
                 Find
               </Button>
             </div>
-            {geoError && <div className="text-xs text-red-500 mb-2">{geoError}</div>}
+            {geoError && (
+              <div className="text-xs text-red-500 mb-2">{geoError}</div>
+            )}
             <MapContainer
               center={position || [27.7, 85.3]}
               zoom={position ? 14 : 6}
-              style={{ height: "300px", width: "100%", borderRadius: "8px" }}
+              style={{ height: '300px', width: '100%', borderRadius: '8px' }}
             >
               <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -154,14 +185,22 @@ function LocationFormModal({ open, onClose, onSubmit, initialData }) {
             </MapContainer>
             {position && (
               <div className="mt-2 text-sm text-muted-foreground">
-                <div>Lat: {position[0].toFixed(5)}, Lng: {position[1].toFixed(5)}</div>
-                <div className="truncate">Address: {address || "Loading..."}</div>
+                <div>
+                  Lat: {position[0].toFixed(5)}, Lng: {position[1].toFixed(5)}
+                </div>
+                <div className="truncate">
+                  Address: {address || 'Loading...'}
+                </div>
               </div>
             )}
           </div>
           <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit" disabled={!position}>{initialData ? "Save" : "Add"}</Button>
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit" disabled={!position}>
+              {initialData ? 'Save' : 'Add'}
+            </Button>
           </div>
         </form>
       </DialogContent>
@@ -183,7 +222,7 @@ export default function LocationsPage() {
         setLocations(
           (res.data || []).map((loc) => ({
             id: loc._id,
-            name: loc.name,
+            name: loc?.name,
             description: loc.description,
             lat: loc.location?.coordinates[1],
             lng: loc.location?.coordinates[0],
@@ -231,7 +270,7 @@ export default function LocationsPage() {
           ...prev,
           {
             id: loc._id,
-            name: loc.name,
+            name: loc?.name,
             description: loc.description,
             lat: loc.location?.coordinates[1],
             lng: loc.location?.coordinates[0],
@@ -248,7 +287,7 @@ export default function LocationsPage() {
             i === editIndex
               ? {
                   id: updated._id,
-                  name: updated.name,
+                  name: updated?.name,
                   description: updated.description,
                   lat: updated.location?.coordinates[1],
                   lng: updated.location?.coordinates[0],
@@ -278,20 +317,41 @@ export default function LocationsPage() {
               <div className="text-muted-foreground">Loading...</div>
             ) : (
               <ul className="space-y-2">
-                {locations.length === 0 && <li className="text-muted-foreground">No locations yet.</li>}
+                {locations.length === 0 && (
+                  <li className="text-muted-foreground">No locations yet.</li>
+                )}
                 {locations.map((loc, idx) => (
-                  <li key={loc.id} className="border rounded p-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                  <li
+                    key={loc.id}
+                    className="border rounded p-2 flex flex-col md:flex-row md:items-center md:justify-between gap-2"
+                  >
                     <div>
-                      <div className="font-medium">{loc.name}</div>
-                      <div className="text-sm text-muted-foreground">{loc.description}</div>
+                      <div className="font-medium">{loc?.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {loc.description}
+                      </div>
                       <div className="text-xs text-muted-foreground">
                         Lat: {loc.lat.toFixed(5)}, Lng: {loc.lng.toFixed(5)}
                       </div>
-                      <div className="text-xs text-muted-foreground truncate">{loc.address}</div>
+                      <div className="text-xs text-muted-foreground truncate">
+                        {loc.address}
+                      </div>
                     </div>
                     <div className="flex gap-2 mt-2 md:mt-0">
-                      <Button size="sm" variant="outline" onClick={() => handleEditClick(idx)}>Edit</Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(idx)}>Delete</Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEditClick(idx)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(idx)}
+                      >
+                        Delete
+                      </Button>
                     </div>
                   </li>
                 ))}
@@ -309,7 +369,9 @@ export default function LocationsPage() {
             ? {
                 name: locations[editIndex]?.name,
                 description: locations[editIndex]?.description,
-                position: locations[editIndex] ? [locations[editIndex].lat, locations[editIndex].lng] : null,
+                position: locations[editIndex]
+                  ? [locations[editIndex].lat, locations[editIndex].lng]
+                  : null,
                 address: locations[editIndex]?.address,
               }
             : undefined

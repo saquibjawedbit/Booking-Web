@@ -1,6 +1,6 @@
-const { Translate } = (await import('@google-cloud/translate')).v2;
-import redis from '../config/redis.config.js';
-import dotenv from 'dotenv';
+const { Translate } = (await import("@google-cloud/translate")).v2;
+import dotenv from "dotenv";
+import redis from "../config/redis.config.js";
 await dotenv.config();
 
 // Initialize Google Translate client
@@ -17,14 +17,20 @@ const translate = new Translate({
  * @param {string} sourceLanguage - Source language code (default: 'en')
  * @returns {Promise<string>} - Translated text
  */
-export const translateText = async (text, targetLanguage, sourceLanguage = 'en') => {
+export const translateText = async (
+  text,
+  targetLanguage,
+  sourceLanguage = "en"
+) => {
   // Return original text if target language is the same as source
   if (targetLanguage === sourceLanguage) {
     return text;
   }
 
   // Create cache key
-  const cacheKey = `translate:${sourceLanguage}:${targetLanguage}:${Buffer.from(text).toString('base64')}`;
+  const cacheKey = `translate:${sourceLanguage}:${targetLanguage}:${Buffer.from(
+    text
+  ).toString("base64")}`;
   try {
     // Check if translation exists in cache
     const cachedTranslation = await redis.get(cacheKey);
@@ -42,7 +48,7 @@ export const translateText = async (text, targetLanguage, sourceLanguage = 'en')
     await redis.setEx(cacheKey, 86400, translation);
     return translation;
   } catch (error) {
-    console.error('Translation error:', error);
+    console.error("Translation error:", error);
     // Return original text if translation fails
     return text;
   }
@@ -56,7 +62,11 @@ export const translateText = async (text, targetLanguage, sourceLanguage = 'en')
  * @param {string} sourceLanguage - Source language code (default: 'en')
  * @returns {Promise<string[]>} - Array of translated texts
  */
-export const translateTexts = async (texts, targetLanguage, sourceLanguage = 'en') => {
+export const translateTexts = async (
+  texts,
+  targetLanguage,
+  sourceLanguage = "en"
+) => {
   // Return original texts if target language is the same as source
   if (targetLanguage === sourceLanguage) {
     return texts;
@@ -69,8 +79,10 @@ export const translateTexts = async (texts, targetLanguage, sourceLanguage = 'en
   // Check cache for each text
   for (let i = 0; i < texts.length; i++) {
     const text = texts[i];
-    const cacheKey = `translate:${sourceLanguage}:${targetLanguage}:${Buffer.from(text).toString('base64')}`;
-    
+    const cacheKey = `translate:${sourceLanguage}:${targetLanguage}:${Buffer.from(
+      text
+    ).toString("base64")}`;
+
     try {
       const cachedTranslation = await redis.get(cacheKey);
       if (cachedTranslation) {
@@ -80,7 +92,7 @@ export const translateTexts = async (texts, targetLanguage, sourceLanguage = 'en
         indexes.push(i);
       }
     } catch (error) {
-      console.error('Cache error:', error);
+      console.error("Cache error:", error);
       textsToTranslate.push(text);
       indexes.push(i);
     }
@@ -93,7 +105,7 @@ export const translateTexts = async (texts, targetLanguage, sourceLanguage = 'en
       for (let i = 0; i < textsToTranslate.length; i += batchSize) {
         const batch = textsToTranslate.slice(i, i + batchSize);
         const batchIndexes = indexes.slice(i, i + batchSize);
-        
+
         const [translations] = await translate.translate(batch, {
           from: sourceLanguage,
           to: targetLanguage,
@@ -101,19 +113,23 @@ export const translateTexts = async (texts, targetLanguage, sourceLanguage = 'en
 
         // Cache and store results
         for (let j = 0; j < batch.length; j++) {
-          const translation = Array.isArray(translations) ? translations[j] : translations;
+          const translation = Array.isArray(translations)
+            ? translations[j]
+            : translations;
           const originalIndex = batchIndexes[j];
-          results[originalIndex] = translation;          // Cache the translation
-          const cacheKey = `translate:${sourceLanguage}:${targetLanguage}:${Buffer.from(batch[j]).toString('base64')}`;
+          results[originalIndex] = translation; // Cache the translation
+          const cacheKey = `translate:${sourceLanguage}:${targetLanguage}:${Buffer.from(
+            batch[j]
+          ).toString("base64")}`;
           try {
             await redis.setEx(cacheKey, 86400, translation);
           } catch (error) {
-            console.error('Cache storage error:', error);
+            console.error("Cache storage error:", error);
           }
         }
       }
     } catch (error) {
-      console.error('Translation error:', error);
+      console.error("Translation error:", error);
       // Fall back to original texts for failed translations
       for (const index of indexes) {
         if (!results[index]) {
@@ -128,29 +144,41 @@ export const translateTexts = async (texts, targetLanguage, sourceLanguage = 'en
 
 /**
  * Translates an object's specified fields to the target language
- * Also handles nested populated fields like adventures.name
+ * Also handles nested populated fields like adventures?.name
  * @param {Object} obj - Object to translate
  * @param {string[]} fieldsToTranslate - Array of field names to translate
  * @param {string} targetLanguage - Target language code
  * @param {string} sourceLanguage - Source language code (default: 'en')
  * @returns {Promise<Object>} - Object with translated fields
  */
-export const translateObjectFields = async (obj, fieldsToTranslate, targetLanguage, sourceLanguage = 'en') => {
+export const translateObjectFields = async (
+  obj,
+  fieldsToTranslate,
+  targetLanguage,
+  sourceLanguage = "en"
+) => {
   // Return original object if target language is the same as source
   if (targetLanguage === sourceLanguage) {
     return obj;
   }
-  
+
   // Create a deep copy of the object to avoid mutating the original
   const translatedObj = JSON.parse(JSON.stringify(obj));
 
   for (const field of fieldsToTranslate) {
-    if (obj[field] && typeof obj[field] === 'string') {
-      translatedObj[field] = await translateText(obj[field], targetLanguage, sourceLanguage);
-    }
-    else if (obj[field] && Array.isArray(obj[field])) {
+    if (obj[field] && typeof obj[field] === "string") {
+      translatedObj[field] = await translateText(
+        obj[field],
+        targetLanguage,
+        sourceLanguage
+      );
+    } else if (obj[field] && Array.isArray(obj[field])) {
       // Handle arrays of strings
-      translatedObj[field] = await translateTexts(obj[field], targetLanguage, sourceLanguage);
+      translatedObj[field] = await translateTexts(
+        obj[field],
+        targetLanguage,
+        sourceLanguage
+      );
     }
   }
 
@@ -159,14 +187,19 @@ export const translateObjectFields = async (obj, fieldsToTranslate, targetLangua
 
 /**
  * Translates an array of objects' specified fields to the target language
- * Also handles nested populated fields like adventures.name
+ * Also handles nested populated fields like adventures?.name
  * @param {Object[]} objects - Array of objects to translate
  * @param {string[]} fieldsToTranslate - Array of field names to translate
  * @param {string} targetLanguage - Target language code
  * @param {string} sourceLanguage - Source language code (default: 'en')
  * @returns {Promise<Object[]>} - Array of objects with translated fields
  */
-export const translateObjectsFields = async (objects, fieldsToTranslate, targetLanguage, sourceLanguage = 'en') => {
+export const translateObjectsFields = async (
+  objects,
+  fieldsToTranslate,
+  targetLanguage,
+  sourceLanguage = "en"
+) => {
   // Return original objects if target language is the same as source
   if (targetLanguage === sourceLanguage) {
     return objects;
@@ -175,8 +208,13 @@ export const translateObjectsFields = async (objects, fieldsToTranslate, targetL
   const translatedObjects = [];
 
   for (const obj of objects) {
-    const translatedObj = await translateObjectFields(obj, fieldsToTranslate, targetLanguage, sourceLanguage);
-    
+    const translatedObj = await translateObjectFields(
+      obj,
+      fieldsToTranslate,
+      targetLanguage,
+      sourceLanguage
+    );
+
     translatedObjects.push(translatedObj);
   }
 
@@ -195,13 +233,13 @@ export const clearTranslationCache = async (pattern = null) => {
         await redis.del(keys);
       }
     } else {
-      const keys = await redis.keys('translate:*');
+      const keys = await redis.keys("translate:*");
       if (keys.length > 0) {
         await redis.del(keys);
       }
     }
   } catch (error) {
-    console.error('Error clearing translation cache:', error);
+    console.error("Error clearing translation cache:", error);
   }
 };
 
@@ -214,7 +252,7 @@ export const getSupportedLanguages = async () => {
     const [languages] = await translate.getLanguages();
     return languages;
   } catch (error) {
-    console.error('Error getting supported languages:', error);
+    console.error("Error getting supported languages:", error);
     return [];
   }
 };

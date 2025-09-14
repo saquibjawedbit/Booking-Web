@@ -138,7 +138,7 @@ export default function InstructorsPage() {
             <TableBody>
               {instructors.map((instructor) => (
                 <TableRow key={instructor._id}>
-                  <TableCell>{instructor.name}</TableCell>
+                  <TableCell>{instructor?.name}</TableCell>
                   <TableCell>{instructor.email}</TableCell>
                   <TableCell>
                     {instructor?.instructor?.adventure?.name}
@@ -340,7 +340,7 @@ export default function InstructorsPage() {
                         <div className="mt-3 space-y-3">
                           <div>
                             <p className="text-sm font-medium">Full Name</p>
-                            <p>{selectedInstructor.name}</p>
+                            <p>{selectedInstructor?.name}</p>
                           </div>
                           <div>
                             <p className="text-sm font-medium">Email Address</p>

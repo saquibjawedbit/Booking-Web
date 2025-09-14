@@ -44,7 +44,7 @@ export const uploadFile = async (file) => {
       throw new Error('No file provided');
     }
 
-    console.log('Starting file upload for:', file.name);
+    console.log('Starting file upload for:', file?.name);
 
     // In a real app, you would use fetch or axios to upload the file to a server
     // For now, we'll simulate an upload by creating a data URL
@@ -61,7 +61,7 @@ export const uploadFile = async (file) => {
 
     return {
       url: dataURL, // In a real app, this would be the URL returned by the server
-      name: file.name,
+      name: file?.name,
       type: file.type,
       size: file.size,
     };

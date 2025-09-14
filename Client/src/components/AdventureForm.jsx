@@ -1,19 +1,25 @@
-"use client"
+'use client';
 
-import React from "react"
-import { useForm } from "react-hook-form"
-import { Button } from "./ui/button"
-import { Input } from "./ui/input"
-import { createAdventure, updateAdventure } from "../Api/adventure.api"
-import { fetchLocations } from "../Api/location.api"
-import { toast } from "sonner"
-import { useEffect } from "react"
-import MediaPreview from "./MediaPreview"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs"
-import { Label } from "./ui/label"
-import { Video, ImageIcon } from "lucide-react"
+import { ImageIcon, Video } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
+import { createAdventure, updateAdventure } from '../Api/adventure.api';
+import { fetchLocations } from '../Api/location.api';
+import MediaPreview from './MediaPreview';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
-const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDialogMode, setEdit, fetchAdventure }) => {
+const AdventureForm = ({
+  dialogmode,
+  editAdventure,
+  setShowAddAdventure,
+  setDialogMode,
+  setEdit,
+  fetchAdventure,
+}) => {
   const {
     register,
     handleSubmit,
@@ -22,245 +28,272 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
     formState: { errors },
   } = useForm({
     defaultValues: editAdventure || {
-      name: "",
+      name: '',
       location: [],
-      description: "",
-      exp: "",
+      description: '',
+      exp: '',
       medias: [],
       thumbnail: null,
       previewVideo: null,
     },
-  })
+  });
 
-  const [mediaFiles, setMediaFiles] = React.useState([])
-  const [mediaPreviews, setMediaPreviews] = React.useState([])
-  const [thumbnailFile, setThumbnailFile] = React.useState(null)
-  const [thumbnailPreview, setThumbnailPreview] = React.useState(null)
-  const [previewVideoFile, setPreviewVideoFile] = React.useState(null)
-  const [previewVideoPreview, setPreviewVideoPreview] = React.useState(null)
-  const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [locations, setLocations] = React.useState([])
-  const [showLocationDropdown, setShowLocationDropdown] = React.useState(false)
-  const [selectedLocations, setSelectedLocations] = React.useState(editAdventure?.location || [])
+  const [mediaFiles, setMediaFiles] = React.useState([]);
+  const [mediaPreviews, setMediaPreviews] = React.useState([]);
+  const [thumbnailFile, setThumbnailFile] = React.useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = React.useState(null);
+  const [previewVideoFile, setPreviewVideoFile] = React.useState(null);
+  const [previewVideoPreview, setPreviewVideoPreview] = React.useState(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [locations, setLocations] = React.useState([]);
+  const [showLocationDropdown, setShowLocationDropdown] = React.useState(false);
+  const [selectedLocations, setSelectedLocations] = React.useState(
+    editAdventure?.location || []
+  );
 
   // Generate previews when files are selected or when editing
   useEffect(() => {
-    let previews = []
+    let previews = [];
     // Show existing medias from editAdventure in edit mode
-    if (editAdventure && editAdventure.medias && Array.isArray(editAdventure.medias)) {
-      previews = editAdventure.medias.map((media, idx) => {
+    if (
+      editAdventure &&
+      editAdventure?.medias &&
+      Array.isArray(editAdventure?.medias)
+    ) {
+      previews = editAdventure?.medias.map((media, idx) => {
         // Assume media is a URL string or an object with url/type/name
-        if (typeof media === "string") {
+        if (typeof media === 'string') {
           // Guess type from extension
-          const ext = media.split(".").pop().toLowerCase()
-          let type = ""
-          if (["jpg", "jpeg", "png", "gif", "webp", "bmp"].includes(ext)) type = "image"
-          else if (["mp4", "webm", "ogg", "mov", "avi"].includes(ext)) type = "video"
-          else type = "file"
+          const ext = media.split('.').pop().toLowerCase();
+          let type = '';
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp'].includes(ext))
+            type = 'image';
+          else if (['mp4', 'webm', 'ogg', 'mov', 'avi'].includes(ext))
+            type = 'video';
+          else type = 'file';
           return {
             url: media,
             type: type,
-            name: media.split("/").pop() || `media-${idx}`,
+            name: media.split('/').pop() || `media-${idx}`,
             isServer: true,
-          }
+          };
         } else {
-          return { ...media, isServer: true }
+          return { ...media, isServer: true };
         }
-      })
+      });
     }
     // Add previews for newly selected files
     if (mediaFiles.length) {
       const filePreviews = mediaFiles.map((file) => ({
         url: URL.createObjectURL(file),
-        type: file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : "file",
-        name: file.name,
+        type: file.type.startsWith('image/')
+          ? 'image'
+          : file.type.startsWith('video/')
+            ? 'video'
+            : 'file',
+        name: file?.name,
         isServer: false,
-      }))
-      previews = [...previews, ...filePreviews]
+      }));
+      previews = [...previews, ...filePreviews];
     }
-    setMediaPreviews(previews)
+    setMediaPreviews(previews);
     // Cleanup only for local files
     return () => {
       if (mediaFiles.length) {
-        previews.filter((p) => !p.isServer).forEach((p) => URL.revokeObjectURL(p.url))
+        previews
+          .filter((p) => !p.isServer)
+          .forEach((p) => URL.revokeObjectURL(p.url));
       }
-    }
-  }, [mediaFiles, editAdventure])
+    };
+  }, [mediaFiles, editAdventure]);
 
   // Handle thumbnail preview
   useEffect(() => {
     // Clear previous preview
     if (thumbnailPreview && !thumbnailPreview.isServer) {
-      URL.revokeObjectURL(thumbnailPreview.url)
+      URL.revokeObjectURL(thumbnailPreview.url);
     }
 
     // Create preview for new thumbnail
     if (thumbnailFile) {
       setThumbnailPreview({
         url: URL.createObjectURL(thumbnailFile),
-        type: "image",
-        name: thumbnailFile.name,
+        type: 'image',
+        name: thumbnailFile?.name,
         isServer: false,
-      })
+      });
     } else if (editAdventure?.thumbnail) {
       // Show existing thumbnail from editAdventure
       setThumbnailPreview({
         url: editAdventure.thumbnail,
-        type: "image",
-        name: "thumbnail",
+        type: 'image',
+        name: 'thumbnail',
         isServer: true,
-      })
+      });
     } else {
-      setThumbnailPreview(null)
+      setThumbnailPreview(null);
     }
 
     return () => {
       if (thumbnailPreview && !thumbnailPreview.isServer) {
-        URL.revokeObjectURL(thumbnailPreview.url)
+        URL.revokeObjectURL(thumbnailPreview.url);
       }
-    }
-  }, [thumbnailFile, editAdventure])
+    };
+  }, [thumbnailFile, editAdventure]);
 
   // Handle preview video
   useEffect(() => {
     // Clear previous preview
     if (previewVideoPreview && !previewVideoPreview.isServer) {
-      URL.revokeObjectURL(previewVideoPreview.url)
+      URL.revokeObjectURL(previewVideoPreview.url);
     }
 
     // Create preview for new video
     if (previewVideoFile) {
       setPreviewVideoPreview({
         url: URL.createObjectURL(previewVideoFile),
-        type: "video",
-        name: previewVideoFile.name,
+        type: 'video',
+        name: previewVideoFile?.name,
         isServer: false,
-      })
+      });
     } else if (editAdventure?.previewVideo) {
       // Show existing preview video from editAdventure
       setPreviewVideoPreview({
         url: editAdventure.previewVideo,
-        type: "video",
-        name: "preview-video",
+        type: 'video',
+        name: 'preview-video',
         isServer: true,
-      })
+      });
     } else {
-      setPreviewVideoPreview(null)
+      setPreviewVideoPreview(null);
     }
 
     return () => {
       if (previewVideoPreview && !previewVideoPreview.isServer) {
-        URL.revokeObjectURL(previewVideoPreview.url)
+        URL.revokeObjectURL(previewVideoPreview.url);
       }
-    }
-  }, [previewVideoFile, editAdventure])
+    };
+  }, [previewVideoFile, editAdventure]);
 
   // Remove a selected media file (only local files)
   const handleRemoveMedia = (idx) => {
     // Only allow removing local files (after server files)
     const serverCount =
-      editAdventure && editAdventure.medias && Array.isArray(editAdventure.medias) ? editAdventure.medias.length : 0
+      editAdventure &&
+      editAdventure?.medias &&
+      Array.isArray(editAdventure?.medias)
+        ? editAdventure?.medias.length
+        : 0;
     if (idx >= serverCount) {
-      setMediaFiles((files) => files.filter((_, i) => i !== idx - serverCount))
+      setMediaFiles((files) => files.filter((_, i) => i !== idx - serverCount));
     }
     // Optionally, handle server media removal here if backend supports it
-  }
+  };
 
   const handleRemoveThumbnail = () => {
-    setThumbnailFile(null)
-    setThumbnailPreview(null)
-  }
+    setThumbnailFile(null);
+    setThumbnailPreview(null);
+  };
 
   const handleRemovePreviewVideo = () => {
-    setPreviewVideoFile(null)
-    setPreviewVideoPreview(null)
-  }
+    setPreviewVideoFile(null);
+    setPreviewVideoPreview(null);
+  };
 
   useEffect(() => {
     reset(
       editAdventure || {
-        name: "",
+        name: '',
         location: [],
-        description: "",
-        exp: "",
+        description: '',
+        exp: '',
         medias: [],
         thumbnail: null,
         previewVideo: null,
-      },
-    )
-  }, [editAdventure, reset])
+      }
+    );
+  }, [editAdventure, reset]);
 
   useEffect(() => {
     // Fetch locations for dropdown
     fetchLocations()
       .then((res) => {
-        if (res && res.data) setLocations(res.data)
+        if (res && res.data) setLocations(res.data);
       })
-      .catch(() => setLocations([]))
-  }, [])
+      .catch(() => setLocations([]));
+  }, []);
 
   // Sync selectedLocations with form value
   useEffect(() => {
-    setValue("location", selectedLocations)
-  }, [selectedLocations, setValue])
+    setValue('location', selectedLocations);
+  }, [selectedLocations, setValue]);
 
   // When editing, update selectedLocations
   useEffect(() => {
-    setSelectedLocations(editAdventure?.location || [])
-  }, [editAdventure])
+    setSelectedLocations(editAdventure?.location || []);
+  }, [editAdventure]);
 
   const toggleLocation = (locId) => {
-    setSelectedLocations((prev) => (prev.includes(locId) ? prev.filter((id) => id !== locId) : [...prev, locId]))
-  }
+    setSelectedLocations((prev) =>
+      prev.includes(locId)
+        ? prev.filter((id) => id !== locId)
+        : [...prev, locId]
+    );
+  };
 
   const onSubmit = async (data) => {
-    setIsSubmitting(true)
-    const toastId = toast.loading(dialogmode ? "Updating adventure..." : "Creating adventure...")
+    setIsSubmitting(true);
+    const toastId = toast.loading(
+      dialogmode ? 'Updating adventure...' : 'Creating adventure...'
+    );
     try {
-      const formData = new FormData()
-      formData.append("name", data.name)
-      data.location.forEach((locId) => formData.append("location", locId))
-      formData.append("description", data.description)
-      formData.append("exp", data.exp)
+      const formData = new FormData();
+      formData.append('name', data?.name);
+      data.location.forEach((locId) => formData.append('location', locId));
+      formData.append('description', data.description);
+      formData.append('exp', data.exp);
       if (editAdventure && editAdventure._id) {
-        formData.append("_id", editAdventure._id)
+        formData.append('_id', editAdventure._id);
       }
 
       // Add thumbnail if available
       if (thumbnailFile) {
-        formData.append("thumbnail", thumbnailFile)
+        formData.append('thumbnail', thumbnailFile);
       }
 
       // Add preview video if available
       if (previewVideoFile) {
-        formData.append("previewVideo", previewVideoFile)
+        formData.append('previewVideo', previewVideoFile);
       }
 
       // Add regular media files
       mediaFiles.forEach((file) => {
-        formData.append("medias", file)
-      })
+        formData.append('medias', file);
+      });
 
       if (dialogmode && editAdventure) {
-        await updateAdventure(formData)
-        toast.success("Adventure updated successfully", { id: toastId })
+        await updateAdventure(formData);
+        toast.success('Adventure updated successfully', { id: toastId });
       } else {
-        await createAdventure(formData)
-        toast.success("Adventure created successfully", { id: toastId })
+        await createAdventure(formData);
+        toast.success('Adventure created successfully', { id: toastId });
       }
-      setShowAddAdventure(false)
-      setDialogMode(false)
-      setEdit(null)
-      fetchAdventure()
+      setShowAddAdventure(false);
+      setDialogMode(false);
+      setEdit(null);
+      fetchAdventure();
     } catch (error) {
-      toast.error("Error saving adventure", { id: toastId })
+      toast.error('Error saving adventure', { id: toastId });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full max-w-4xl mx-auto">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 w-full max-w-4xl mx-auto"
+    >
       <Tabs defaultValue="basic" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-4">
           <TabsTrigger value="basic" className="text-base py-3">
@@ -279,10 +312,12 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
                 id="name"
                 placeholder="Name"
                 disabled={isSubmitting}
-                {...register("name", { required: true })}
+                {...register('name', { required: true })}
                 className="w-full"
               />
-              {errors.name && <span className="text-red-500 text-sm">Name is required</span>}
+              {errors?.name && (
+                <span className="text-red-500 text-sm">Name is required</span>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -292,10 +327,14 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
                 placeholder="Experience"
                 type="number"
                 disabled={isSubmitting}
-                {...register("exp", { required: true })}
+                {...register('exp', { required: true })}
                 className="w-full"
               />
-              {errors.exp && <span className="text-red-500 text-sm">Experience is required</span>}
+              {errors.exp && (
+                <span className="text-red-500 text-sm">
+                  Experience is required
+                </span>
+              )}
             </div>
           </div>
 
@@ -306,11 +345,11 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
               onClick={() => setShowLocationDropdown((v) => !v)}
             >
               {selectedLocations.length === 0
-                ? "Select location(s)"
+                ? 'Select location(s)'
                 : locations
-                  .filter((loc) => selectedLocations.includes(loc._id))
-                  .map((loc) => loc.name)
-                  .join(", ")}
+                    .filter((loc) => selectedLocations.includes(loc._id))
+                    .map((loc) => loc?.name)
+                    .join(', ')}
             </div>
             {showLocationDropdown && (
               <div className="absolute z-10 bg-white border rounded-md mt-1 w-full max-h-60 overflow-auto shadow-lg">
@@ -319,17 +358,24 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
                     key={loc._id}
                     className="flex items-center px-4 py-3 hover:bg-gray-100 cursor-pointer"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      toggleLocation(loc._id)
+                      e.stopPropagation();
+                      toggleLocation(loc._id);
                     }}
                   >
-                    <input type="checkbox" checked={selectedLocations.includes(loc._id)} readOnly className="mr-3" />
-                    <span>{loc.name}</span>
+                    <input
+                      type="checkbox"
+                      checked={selectedLocations.includes(loc._id)}
+                      readOnly
+                      className="mr-3"
+                    />
+                    <span>{loc?.name}</span>
                   </div>
                 ))}
               </div>
             )}
-            {errors.location && <span className="text-red-500 text-sm">Location is required</span>}
+            {errors.location && (
+              <span className="text-red-500 text-sm">Location is required</span>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -338,10 +384,14 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
               id="description"
               placeholder="Description"
               disabled={isSubmitting}
-              {...register("description", { required: true })}
+              {...register('description', { required: true })}
               className="w-full"
             />
-            {errors.description && <span className="text-red-500 text-sm">Description is required</span>}
+            {errors.description && (
+              <span className="text-red-500 text-sm">
+                Description is required
+              </span>
+            )}
           </div>
         </TabsContent>
 
@@ -354,14 +404,16 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
             <Input
               type="file"
               accept="image/*"
-              onChange={(e) => e.target.files[0] && setThumbnailFile(e.target.files[0])}
+              onChange={(e) =>
+                e.target.files[0] && setThumbnailFile(e.target.files[0])
+              }
               className="block w-full p-2"
               disabled={isSubmitting}
             />
             {thumbnailPreview && (
               <div className="relative mt-3 inline-block">
                 <img
-                  src={thumbnailPreview.url || "/placeholder.svg"}
+                  src={thumbnailPreview.url || '/placeholder.svg'}
                   alt="Thumbnail preview"
                   className="h-40 w-auto object-cover rounded-md border border-gray-200"
                 />
@@ -386,7 +438,9 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
             <Input
               type="file"
               accept="video/*"
-              onChange={(e) => e.target.files[0] && setPreviewVideoFile(e.target.files[0])}
+              onChange={(e) =>
+                e.target.files[0] && setPreviewVideoFile(e.target.files[0])
+              }
               className="block w-full p-2"
               disabled={isSubmitting}
             />
@@ -412,7 +466,9 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
 
           {/* Regular Media Files */}
           <div className="space-y-3">
-            <Label className="text-base font-medium">Additional Media (images/videos)</Label>
+            <Label className="text-base font-medium">
+              Additional Media (images/videos)
+            </Label>
             <Input
               type="file"
               accept="image/*,video/*"
@@ -421,7 +477,11 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
               className="block w-full p-2"
               disabled={isSubmitting}
             />
-            <MediaPreview mediaPreviews={mediaPreviews} onRemove={handleRemoveMedia} isSubmitting={isSubmitting} />
+            <MediaPreview
+              mediaPreviews={mediaPreviews}
+              onRemove={handleRemoveMedia}
+              isSubmitting={isSubmitting}
+            />
           </div>
         </TabsContent>
       </Tabs>
@@ -436,12 +496,16 @@ const AdventureForm = ({ dialogmode, editAdventure, setShowAddAdventure, setDial
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isSubmitting} className="px-8 py-2 bg-black hover:bg-gray-800 text-white">
-          {dialogmode ? "Update" : "Create"}
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="px-8 py-2 bg-black hover:bg-gray-800 text-white"
+        >
+          {dialogmode ? 'Update' : 'Create'}
         </Button>
       </div>
     </form>
-  )
-}
+  );
+};
 
-export default AdventureForm
+export default AdventureForm;

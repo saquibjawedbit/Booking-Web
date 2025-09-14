@@ -47,7 +47,7 @@ useEffect(() => {
       const res = await axiosClient.get('/api/payouts/status');
 
       console.log("PayPal status response:", res.data);
-      setIsLinked(res.data.data?.isLinked ?? false);
+      setIsLinked(res.data.data?.isLinked ? false);
     } catch (err) {
       console.error("Error fetching PayPal status:", err.response?.data || err.message);
       setIsLinked(false);

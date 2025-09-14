@@ -1,31 +1,39 @@
-import { Table } from "antd";
-import { useState } from "react";
+import { Table } from 'antd';
 import {
   ArrowDown,
   ArrowUp,
   Calendar,
+  Compass,
   CreditCard,
   DollarSign,
   Mountain,
-  Users,
   TrendingUp,
-  Compass,
-} from "lucide-react";
+  Users,
+} from 'lucide-react';
+import { useState } from 'react';
+import {
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { Button } from '../../components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+} from '../../components/ui/card';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../../components/ui/select";
+} from '../../components/ui/select';
 
 // Mock data for the dashboard
 const mockData = {
@@ -39,93 +47,92 @@ const mockData = {
   bookingIncrease: 12.3,
   recentBookings: [
     {
-      id: "B-1234",
-      user: "John Doe",
-      adventure: "Mountain Climbing",
-      date: "2025-02-24",
+      id: 'B-1234',
+      user: 'John Doe',
+      adventure: 'Mountain Climbing',
+      date: '2025-02-24',
       amount: 450,
     },
     {
-      id: "B-1235",
-      user: "Jane Smith",
-      adventure: "Scuba Diving",
-      date: "2025-02-23",
+      id: 'B-1235',
+      user: 'Jane Smith',
+      adventure: 'Scuba Diving',
+      date: '2025-02-23',
       amount: 350,
     },
     {
-      id: "B-1236",
-      user: "Mike Johnson",
-      adventure: "Sky Diving",
-      date: "2025-02-22",
+      id: 'B-1236',
+      user: 'Mike Johnson',
+      adventure: 'Sky Diving',
+      date: '2025-02-22',
       amount: 550,
     },
     {
-      id: "B-1237",
-      user: "Sarah Williams",
-      adventure: "River Rafting",
-      date: "2025-02-21",
+      id: 'B-1237',
+      user: 'Sarah Williams',
+      adventure: 'River Rafting',
+      date: '2025-02-21',
       amount: 300,
     },
     {
-      id: "B-1238",
-      user: "David Brown",
-      adventure: "Bungee Jumping",
-      date: "2025-02-20",
+      id: 'B-1238',
+      user: 'David Brown',
+      adventure: 'Bungee Jumping',
+      date: '2025-02-20',
       amount: 250,
     },
   ],
   topAdventures: [
-    { name: "Sky Diving", bookings: 245, revenue: 36750 },
-    { name: "Scuba Diving", bookings: 198, revenue: 29700 },
-    { name: "Mountain Climbing", bookings: 156, revenue: 23400 },
-    { name: "Bungee Jumping", bookings: 132, revenue: 19800 },
-    { name: "River Rafting", bookings: 124, revenue: 18600 },
+    { name: 'Sky Diving', bookings: 245, revenue: 36750 },
+    { name: 'Scuba Diving', bookings: 198, revenue: 29700 },
+    { name: 'Mountain Climbing', bookings: 156, revenue: 23400 },
+    { name: 'Bungee Jumping', bookings: 132, revenue: 19800 },
+    { name: 'River Rafting', bookings: 124, revenue: 18600 },
   ],
   monthlyRevenue: [
-    { month: "Jan", revenue: 8500 },
-    { month: "Feb", revenue: 9200 },
-    { month: "Mar", revenue: 10500 },
-    { month: "Apr", revenue: 9800 },
-    { month: "May", revenue: 11200 },
-    { month: "Jun", revenue: 12500 },
-    { month: "Jul", revenue: 13800 },
-    { month: "Aug", revenue: 14200 },
-    { month: "Sep", revenue: 13500 },
-    { month: "Oct", revenue: 12800 },
-    { month: "Nov", revenue: 11500 },
-    { month: "Dec", revenue: 10800 },
+    { month: 'Jan', revenue: 8500 },
+    { month: 'Feb', revenue: 9200 },
+    { month: 'Mar', revenue: 10500 },
+    { month: 'Apr', revenue: 9800 },
+    { month: 'May', revenue: 11200 },
+    { month: 'Jun', revenue: 12500 },
+    { month: 'Jul', revenue: 13800 },
+    { month: 'Aug', revenue: 14200 },
+    { month: 'Sep', revenue: 13500 },
+    { month: 'Oct', revenue: 12800 },
+    { month: 'Nov', revenue: 11500 },
+    { month: 'Dec', revenue: 10800 },
   ],
 };
 const columns = [
   {
-    title: "Booking ID",
-    dataIndex: "id",
-    key: "id",
+    title: 'Booking ID',
+    dataIndex: 'id',
+    key: 'id',
   },
   {
-    title: "User",
-    dataIndex: "user",
-    key: "user",
+    title: 'User',
+    dataIndex: 'user',
+    key: 'user',
   },
   {
-    title: "Adventure",
-    dataIndex: "adventure",
-    key: "adventure",
+    title: 'Adventure',
+    dataIndex: 'adventure',
+    key: 'adventure',
   },
   {
-    title: "Date",
-    dataIndex: "date",
-    key: "date",
+    title: 'Date',
+    dataIndex: 'date',
+    key: 'date',
   },
   {
-    title: "Amount",
-    dataIndex: "amount",
-    key: "amount",
+    title: 'Amount',
+    dataIndex: 'amount',
+    key: 'amount',
   },
 ];
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 export default function AdminDashboard() {
-  const [timeRange, setTimeRange] = useState("month");
+  const [timeRange, setTimeRange] = useState('month');
 
   return (
     <div className="space-y-6">
@@ -161,10 +168,11 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
               <span
-                className={`flex items-center ${mockData.revenueIncrease > 0
-                  ? "text-green-500"
-                  : "text-red-500"
-                  }`}
+                className={`flex items-center ${
+                  mockData.revenueIncrease > 0
+                    ? 'text-green-500'
+                    : 'text-red-500'
+                }`}
               >
                 {mockData.revenueIncrease > 0 ? (
                   <ArrowUp className="h-3 w-3" />
@@ -189,8 +197,9 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
               <span
-                className={`flex items-center ${mockData.userIncrease > 0 ? "text-green-500" : "text-red-500"
-                  }`}
+                className={`flex items-center ${
+                  mockData.userIncrease > 0 ? 'text-green-500' : 'text-red-500'
+                }`}
               >
                 {mockData.userIncrease > 0 ? (
                   <ArrowUp className="h-3 w-3" />
@@ -217,10 +226,11 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
               <span
-                className={`flex items-center ${mockData.adventureIncrease > 0
-                  ? "text-green-500"
-                  : "text-red-500"
-                  }`}
+                className={`flex items-center ${
+                  mockData.adventureIncrease > 0
+                    ? 'text-green-500'
+                    : 'text-red-500'
+                }`}
               >
                 {mockData.adventureIncrease > 0 ? (
                   <ArrowUp className="h-3 w-3" />
@@ -247,10 +257,11 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-1 text-xs text-muted-foreground">
               <span
-                className={`flex items-center ${mockData.bookingIncrease > 0
-                  ? "text-green-500"
-                  : "text-red-500"
-                  }`}
+                className={`flex items-center ${
+                  mockData.bookingIncrease > 0
+                    ? 'text-green-500'
+                    : 'text-red-500'
+                }`}
               >
                 {mockData.bookingIncrease > 0 ? (
                   <ArrowUp className="h-3 w-3" />
@@ -298,7 +309,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="ml-2 flex-1 space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {adventure.name}
+                      {adventure?.name}
                     </p>
                     <div className="flex items-center text-xs text-muted-foreground">
                       <span>{adventure.bookings} bookings</span>
@@ -366,13 +377,21 @@ export default function AdminDashboard() {
 function RevenueChart({ data }) {
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+      <LineChart
+        data={data}
+        margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
+      >
         <XAxis dataKey="month" stroke="#000000" />
         <YAxis stroke="#000000" />
         <Tooltip />
-        <Line type="monotone" dataKey="revenue" stroke="#00bfa0" strokeWidth={2} dot={{ r: 4 }} />
+        <Line
+          type="monotone"
+          dataKey="revenue"
+          stroke="#00bfa0"
+          strokeWidth={2}
+          dot={{ r: 4 }}
+        />
       </LineChart>
     </ResponsiveContainer>
   );
 }
-

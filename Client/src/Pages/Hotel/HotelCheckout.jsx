@@ -1,76 +1,89 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { useNavigate, useLocation, Link } from "react-router-dom"
-import { toast } from "sonner"
+import { motion } from 'framer-motion';
 import {
   ArrowLeft,
+  Bed,
   Calendar,
+  CalendarCheck,
+  Clock,
   CreditCard,
   Hotel as HotelIcon,
   MapPin,
-  User,
-  Clock,
-  Bed,
-  Phone,
-  Mail,
   Shield,
-  CalendarCheck
-} from "lucide-react"
-import { Button } from "../../components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card"
-import { Input } from "../../components/ui/input"
-import { Label } from "../../components/ui/label"
-import { Separator } from "../../components/ui/separator"
-import { Badge } from "../../components/ui/badge"
-import { Slider } from "../../components/ui/slider"
-import { Navbar } from "../../components/Navbar"
-import { useTranslation } from "react-i18next"
-import { createHotelBooking } from "../../Api/hotelBooking.api"
+  User,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { createHotelBooking } from '../../Api/hotelBooking.api';
+import { Navbar } from '../../components/Navbar';
+import { Badge } from '../../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '../../components/ui/card';
+import { Input } from '../../components/ui/input';
+import { Label } from '../../components/ui/label';
+import { Separator } from '../../components/ui/separator';
+import { Slider } from '../../components/ui/slider';
 
 export default function HotelCheckout() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const [isLoading, setIsLoading] = useState(false)
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
 
   // Get hotel data from location state or redirect back
-  const hotelData = location.state?.hotel
+  const hotelData = location.state?.hotel;
 
   if (!hotelData) {
     useEffect(() => {
-      toast.error("No hotel selected for booking")
-      navigate("/hotels")
-    }, [])
-    return null
-  } const [bookingDetails, setBookingDetails] = useState({
-    checkInDate: location.state?.checkInDate || new Date().toISOString().split("T")[0],
-    checkOutDate: location.state?.checkOutDate || new Date(Date.now() + 86400000).toISOString().split("T")[0],
+      toast.error('No hotel selected for booking');
+      navigate('/hotels');
+    }, []);
+    return null;
+  }
+  const [bookingDetails, setBookingDetails] = useState({
+    checkInDate:
+      location.state?.checkInDate || new Date().toISOString().split('T')[0],
+    checkOutDate:
+      location.state?.checkOutDate ||
+      new Date(Date.now() + 86400000).toISOString().split('T')[0],
     rooms: location.state?.rooms || 1,
-    guests: typeof location.state?.guests === 'object'
-      ? (location.state.guests.adults || 1) + (location.state.guests.children || 0)
-      : location.state?.guests || 2,
-    specialRequests: ""
-  })
+    guests:
+      typeof location.state?.guests === 'object'
+        ? (location.state.guests.adults || 1) +
+          (location.state.guests.children || 0)
+        : location.state?.guests || 2,
+    specialRequests: '',
+  });
 
   // Calculate stay duration in nights
-  const nights = Math.ceil((new Date(bookingDetails.checkOutDate) - new Date(bookingDetails.checkInDate)) / (1000 * 60 * 60 * 24))
+  const nights = Math.ceil(
+    (new Date(bookingDetails.checkOutDate) -
+      new Date(bookingDetails.checkInDate)) /
+      (1000 * 60 * 60 * 24)
+  );
 
   // Calculate total price
-  const roomRate = hotelData.pricePerNight || hotelData.price || 0
-  const totalPrice = roomRate * bookingDetails.rooms * nights
+  const roomRate = hotelData.pricePerNight || hotelData.price || 0;
+  const totalPrice = roomRate * bookingDetails.rooms * nights;
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setBookingDetails(prev => ({
+    const { name, value } = e.target;
+    setBookingDetails((prev) => ({
       ...prev,
-      [name]: value
-    }))
-  }
+      [name]: value,
+    }));
+  };
   const handleSubmit = async (e, paymentMode) => {
-    e.preventDefault()
-    setIsLoading(true)
+    e.preventDefault();
+    setIsLoading(true);
     try {
       // Prepare booking data
       const bookingData = {
@@ -80,24 +93,27 @@ export default function HotelCheckout() {
         checkInDate: bookingDetails.checkInDate,
         checkOutDate: bookingDetails.checkOutDate,
         specialRequests: bookingDetails.specialRequests,
-        modeOfPayment: paymentMode 
-      }
+        modeOfPayment: paymentMode,
+      };
       // Make API request to create hotel booking
-      const response = await createHotelBooking(bookingData)
+      const response = await createHotelBooking(bookingData);
 
       // Check for successful booking
       if (response.data && response.data.data) {
         window.location.href = response.data.data.checkout_url;
       } else {
-        throw new Error(response.data?.message || "Booking failed")
+        throw new Error(response.data?.message || 'Booking failed');
       }
     } catch (error) {
-      console.error("Booking error:", error)
-      toast.error(error.response?.data?.message || "Failed to process booking. Please try again.")
+      console.error('Booking error:', error);
+      toast.error(
+        error.response?.data?.message ||
+          'Failed to process booking. Please try again.'
+      );
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-white">
@@ -128,7 +144,8 @@ export default function HotelCheckout() {
             Complete Your Booking
           </h1>
           <p className="text-gray-600 mt-1">
-            Please review your reservation details and provide payment information
+            Please review your reservation details and provide payment
+            information
           </p>
         </div>
 
@@ -145,17 +162,23 @@ export default function HotelCheckout() {
                   <div className="flex items-start gap-4">
                     <div className="w-24 h-24 rounded-md overflow-hidden shrink-0">
                       <img
-                        src={hotelData.logo || hotelData.medias?.[0] || "/placeholder.svg"}
-                        alt={hotelData.name}
+                        src={
+                          hotelData.logo ||
+                          hotelData.medias?.[0] ||
+                          '/placeholder.svg'
+                        }
+                        alt={hotelData?.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">{hotelData.name}</h3>
+                      <h3 className="font-semibold text-lg">
+                        {hotelData?.name}
+                      </h3>
                       <div className="flex items-center gap-1 text-sm text-gray-500 mt-1">
                         <MapPin className="h-3 w-3" />
                         <span>
-                          {hotelData.location?.name || "Location not specified"}
+                          {hotelData.location?.name || 'Location not specified'}
                         </span>
                       </div>
                       {hotelData.rating !== undefined && (
@@ -163,7 +186,7 @@ export default function HotelCheckout() {
                           {[...Array(5)].map((_, i) => (
                             <svg
                               key={i}
-                              className={`h-4 w-4 ${i < Math.round(hotelData.rating) ? "text-yellow-400 fill-current" : "text-gray-300"}`}
+                              className={`h-4 w-4 ${i < Math.round(hotelData.rating) ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
                               xmlns="http://www.w3.org/2000/svg"
                               viewBox="0 0 20 20"
                             >
@@ -181,7 +204,9 @@ export default function HotelCheckout() {
                       <div>
                         <p className="text-sm text-gray-500">Check-in</p>
                         <p className="font-medium">
-                          {new Date(bookingDetails.checkInDate).toLocaleDateString()}
+                          {new Date(
+                            bookingDetails.checkInDate
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -190,7 +215,9 @@ export default function HotelCheckout() {
                       <div>
                         <p className="text-sm text-gray-500">Check-out</p>
                         <p className="font-medium">
-                          {new Date(bookingDetails.checkOutDate).toLocaleDateString()}
+                          {new Date(
+                            bookingDetails.checkOutDate
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                     </div>
@@ -200,17 +227,21 @@ export default function HotelCheckout() {
                         <p className="text-sm text-gray-500">Rooms</p>
                         <p className="font-medium">{bookingDetails.rooms}</p>
                       </div>
-                    </div>                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                    </div>{' '}
+                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <User className="h-5 w-5 text-blue-600" />
                       <div>
                         <p className="text-sm text-gray-500">Guests</p>
                         <p className="font-medium">{bookingDetails.guests}</p>
                       </div>
-                    </div>                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+                    </div>{' '}
+                    <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
                       <Clock className="h-5 w-5 text-blue-600" />
                       <div>
                         <p className="text-sm text-gray-500">Duration</p>
-                        <p className="font-medium">{nights} {nights === 1 ? 'night' : 'nights'}</p>
+                        <p className="font-medium">
+                          {nights} {nights === 1 ? 'night' : 'nights'}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -226,11 +257,18 @@ export default function HotelCheckout() {
                   <div className="space-y-6">
                     {/* Number of Rooms Slider */}
                     <div>
-                      <Label className="text-base font-medium">Number of Rooms: {bookingDetails.rooms}</Label>
+                      <Label className="text-base font-medium">
+                        Number of Rooms: {bookingDetails.rooms}
+                      </Label>
                       <div className="mt-3">
                         <Slider
                           value={[bookingDetails.rooms]}
-                          onValueChange={(value) => setBookingDetails(prev => ({ ...prev, rooms: value[0] }))}
+                          onValueChange={(value) =>
+                            setBookingDetails((prev) => ({
+                              ...prev,
+                              rooms: value[0],
+                            }))
+                          }
                           max={10}
                           min={1}
                           step={1}
@@ -245,11 +283,18 @@ export default function HotelCheckout() {
 
                     {/* Number of Guests Slider */}
                     <div>
-                      <Label className="text-base font-medium">Number of Guests: {bookingDetails.guests}</Label>
+                      <Label className="text-base font-medium">
+                        Number of Guests: {bookingDetails.guests}
+                      </Label>
                       <div className="mt-3">
                         <Slider
                           value={[bookingDetails.guests]}
-                          onValueChange={(value) => setBookingDetails(prev => ({ ...prev, guests: value[0] }))}
+                          onValueChange={(value) =>
+                            setBookingDetails((prev) => ({
+                              ...prev,
+                              guests: value[0],
+                            }))
+                          }
                           max={20}
                           min={1}
                           step={1}
@@ -293,16 +338,26 @@ export default function HotelCheckout() {
                       Payment will be processed securely at the final step
                     </p>
                     <div className="flex flex-wrap gap-2 mt-2">
-                      <Badge variant="outline" className="bg-white">Visa</Badge>
-                      <Badge variant="outline" className="bg-white">MasterCard</Badge>
-                      <Badge variant="outline" className="bg-white">American Express</Badge>
-                      <Badge variant="outline" className="bg-white">PayPal</Badge>
+                      <Badge variant="outline" className="bg-white">
+                        Visa
+                      </Badge>
+                      <Badge variant="outline" className="bg-white">
+                        MasterCard
+                      </Badge>
+                      <Badge variant="outline" className="bg-white">
+                        American Express
+                      </Badge>
+                      <Badge variant="outline" className="bg-white">
+                        PayPal
+                      </Badge>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2 text-sm mt-4">
                     <Shield className="h-4 w-4 text-green-600" />
-                    <span className="text-gray-600">Your payment info is secure and encrypted</span>
+                    <span className="text-gray-600">
+                      Your payment info is secure and encrypted
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -326,7 +381,9 @@ export default function HotelCheckout() {
 
                   <div className="flex justify-between">
                     <span className="text-gray-600">Duration</span>
-                    <span>{nights} {nights === 1 ? 'night' : 'nights'}</span>
+                    <span>
+                      {nights} {nights === 1 ? 'night' : 'nights'}
+                    </span>
                   </div>
 
                   <div className="flex justify-between">
@@ -342,7 +399,10 @@ export default function HotelCheckout() {
                   </div>
 
                   <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-800">
-                    <p>You'll be charged the total amount after confirming this booking.</p>
+                    <p>
+                      You'll be charged the total amount after confirming this
+                      booking.
+                    </p>
                   </div>
 
                   <Button
@@ -350,14 +410,29 @@ export default function HotelCheckout() {
                     className="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
                     size="lg"
                     disabled={isLoading}
-                    onClick={(e) => handleSubmit(e, "revolut")}
+                    onClick={(e) => handleSubmit(e, 'revolut')}
                   >
                     <CreditCard className="h-5 w-5" />
                     {isLoading ? (
                       <>
-                        <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        <svg
+                          className="animate-spin h-5 w-5 mr-2 text-white"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z"
+                          />
                         </svg>
                         Processing...
                       </>
@@ -371,16 +446,35 @@ export default function HotelCheckout() {
                     className="w-full bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700 text-white font-semibold shadow-lg transition-all duration-200 flex items-center justify-center gap-2"
                     size="lg"
                     disabled={isLoading}
-                    onClick={(e) => handleSubmit(e, "paypal")}
+                    onClick={(e) => handleSubmit(e, 'paypal')}
                   >
-                    <svg className="h-5 w-5" viewBox="0 0 32 32" fill="currentColor">
-                      <path d="M29.8 13.8c-.3-2.2-2.2-3.7-4.7-3.7h-7.8c-.5 0-.9.3-1 .8l-3.2 15.2c-.1.4.2.8.6.8h4.1c.5 0 .9-.3 1-.8l.9-4.2c.1-.5.5-.8 1-.8h2.6c4.1 0 7.3-2.1 8.2-6.4.2-.7.2-1.3.3-1.9zm-3.2 2.1c-.6 2.7-2.7 3.9-5.6 3.9h-1.7l1.1-5.2c.1-.5.5-.8 1-.8h1.7c1.2 0 2.1.3 2.7.8.6.5.8 1.3.6 2.3z"/>
+                    <svg
+                      className="h-5 w-5"
+                      viewBox="0 0 32 32"
+                      fill="currentColor"
+                    >
+                      <path d="M29.8 13.8c-.3-2.2-2.2-3.7-4.7-3.7h-7.8c-.5 0-.9.3-1 .8l-3.2 15.2c-.1.4.2.8.6.8h4.1c.5 0 .9-.3 1-.8l.9-4.2c.1-.5.5-.8 1-.8h2.6c4.1 0 7.3-2.1 8.2-6.4.2-.7.2-1.3.3-1.9zm-3.2 2.1c-.6 2.7-2.7 3.9-5.6 3.9h-1.7l1.1-5.2c.1-.5.5-.8 1-.8h1.7c1.2 0 2.1.3 2.7.8.6.5.8 1.3.6 2.3z" />
                     </svg>
                     {isLoading ? (
                       <>
-                        <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                        <svg
+                          className="animate-spin h-5 w-5 mr-2 text-white"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8v8z"
+                          />
                         </svg>
                         Processing...
                       </>
@@ -390,9 +484,14 @@ export default function HotelCheckout() {
                   </Button>
 
                   <p className="text-xs text-gray-500 text-center mt-2">
-                    By confirming, you agree to our{" "}
-                    <Link className="text-blue-600 underline" to="/terms">Terms & Conditions</Link> and{" "}
-                    <Link className="text-blue-600 underline" to="/terms">Cancellation Policy</Link>
+                    By confirming, you agree to our{' '}
+                    <Link className="text-blue-600 underline" to="/terms">
+                      Terms & Conditions
+                    </Link>{' '}
+                    and{' '}
+                    <Link className="text-blue-600 underline" to="/terms">
+                      Cancellation Policy
+                    </Link>
                   </p>
                 </div>
               </CardContent>
@@ -401,5 +500,5 @@ export default function HotelCheckout() {
         </div>
       </motion.div>
     </div>
-  )
+  );
 }

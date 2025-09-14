@@ -18,17 +18,17 @@ export default function AchievementDashboard({
   const getRecentAchievements = () => {
     const recentAchievements = [];
 
-    achievementData.forEach((category) => {
-      category.achievements.forEach((achievement) => {
-        if (achievement.isEarned && achievement.earnedAt) {
-          const earnedDate = new Date(achievement.earnedAt);
+    achievementData?.forEach((category) => {
+      category?.achievements?.forEach((achievement) => {
+        if (achievement?.isEarned && achievement?.earnedAt) {
+          const earnedDate = new Date(achievement?.earnedAt);
           const thirtyDaysAgo = new Date();
           thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
           if (earnedDate >= thirtyDaysAgo) {
             recentAchievements.push({
               ...achievement,
-              category: category.category,
+              category: category?.category,
             });
           }
         }
@@ -46,9 +46,9 @@ export default function AchievementDashboard({
     let total = 0;
     let earned = 0;
 
-    achievementData.forEach((category) => {
-      total += category.achievements.length;
-      earned += category.achievements.filter((a) => a.isEarned).length;
+    achievementData?.forEach((category) => {
+      total += category?.achievements?.length || 0;
+      earned += category?.achievements?.filter((a) => a?.isEarned)?.length || 0;
     });
 
     return { total, earned };
@@ -70,40 +70,40 @@ export default function AchievementDashboard({
   const getNextMilestones = () => {
     const milestones = [];
 
-    achievementData.forEach((category) => {
+    achievementData?.forEach((category) => {
       // Normalize category name for matching
-      const normalizedCategoryName = category.category.trim().toLowerCase();
+      const normalizedCategoryName = category?.category?.trim().toLowerCase();
 
       // Try to find a match by exact normalized name first
-      let matchedAdventure = adventureStats.find(
-        (adv) => adv.name.trim().toLowerCase() === normalizedCategoryName
+      let matchedAdventure = adventureStats?.find(
+        (adv) => adv?.name?.trim().toLowerCase() === normalizedCategoryName
       );
 
       // If no exact match, try to find a partial match (category name contains adventure name or vice versa)
       if (!matchedAdventure) {
-        matchedAdventure = adventureStats.find(
+        matchedAdventure = adventureStats?.find(
           (adv) =>
-            normalizedCategoryName.includes(adv.name.trim().toLowerCase()) ||
-            adv.name.trim().toLowerCase().includes(normalizedCategoryName)
+            normalizedCategoryName?.includes(adv?.name?.trim().toLowerCase()) ||
+            adv?.name?.trim().toLowerCase().includes(normalizedCategoryName)
         );
       }
 
       const totalSessions = matchedAdventure?.totalSessions || 0;
 
       // Find the first non-earned achievement in each category
-      const nextAchievement = category.achievements.find((a) => !a.isEarned);
+      const nextAchievement = category?.achievements?.find((a) => !a?.isEarned);
 
-      if (nextAchievement && nextAchievement.requiredSessions) {
-        const progress = totalSessions / nextAchievement.requiredSessions;
+      if (nextAchievement && nextAchievement?.requiredSessions) {
+        const progress = totalSessions / nextAchievement?.requiredSessions;
 
         if (progress > 0 && progress < 1) {
           milestones.push({
-            category: category.category,
-            title: nextAchievement.title,
-            description: nextAchievement.description,
+            category: category?.category,
+            title: nextAchievement?.title,
+            description: nextAchievement?.description,
             progress,
             current: totalSessions,
-            required: nextAchievement.requiredSessions,
+            required: nextAchievement?.requiredSessions,
           });
         }
       }
